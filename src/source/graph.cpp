@@ -1,18 +1,15 @@
 #include "../header/graph.h"
-#include <iostream>
-#include <stdio.h>
-#include <string.h>
 
-Graph::Graph() : num_vertices(0)
+GP::Graph::Graph() : num_vertices(0)
 {
 	
 }
 
-void Graph::build_adj_list(std::string graph_instance_path)
+void GP::Graph::build_adj_list(std::string graph_instance_path)
 {
 	std::ifstream graph_instance (graph_instance_path);
 	std::string line;
-    
+
 	while (getline(graph_instance, line))
 	{
 		// getting graph info
@@ -35,7 +32,7 @@ void Graph::build_adj_list(std::string graph_instance_path)
 			}
 		}
 
-		// getting graph values && fill adjacency list
+		// getting graph values to fill adjacency list
 		else if (line[0] == 'e')
 		{
 			size_t pos = 0, i = 0, u = 0, v = 0;
