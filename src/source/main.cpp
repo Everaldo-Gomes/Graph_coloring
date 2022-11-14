@@ -10,6 +10,7 @@ int main ()
 
 	GA::Genetic_algorithm ga(graph.num_vertices);
 	ga.init_population();
+	ga.objective_function();
 	
 	return 0;
 }

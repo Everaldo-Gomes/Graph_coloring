@@ -1,10 +1,8 @@
-
 #pragma once
 
 #include <iostream>
 #include <vector>
-#include <numeric>   
-#include <algorithm>
+#include <map>
 
 namespace GA
 {
@@ -12,14 +10,14 @@ namespace GA
 	{
 	
 	private:
-		std::vector<std::vector<int>> population;
-
-		const short int population_num = 100;
+		std::vector<std::vector<unsigned int>> population;
+		const unsigned int population_num = 200;
 	
 	public:
-		Genetic_algorithm(unsigned short int graph_num_vertices);
+		Genetic_algorithm(unsigned int graph_num_vertices);
 		void init_population();
+		std::map<unsigned int, std::vector<unsigned int>> objective_function() const;
 		
-		unsigned short int graph_num_vertices;
+		const unsigned int graph_num_vertices;
 	};	
 }
