@@ -18,8 +18,8 @@ namespace GP
 		void build_adj_list(std::string graph_instance_path);
 
 		Graph();
-		unsigned short int num_vertices;
-		std::vector<std::vector<int>> adj_list;
+		unsigned int num_vertices;
+		std::vector<std::vector<unsigned int>> adj_list;
 		const std::vector<std::string> graph_instances =
 		{
 			instances_path + "anna.col",
