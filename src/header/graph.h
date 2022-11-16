@@ -4,6 +4,7 @@
 #include <string.h>
 #include <vector>
 #include <fstream>
+#include <iostream>
 
 namespace GP
 {
@@ -13,15 +14,16 @@ namespace GP
 	private:
 		const std::string instances_path = "./src/graph_instances/";
 
-		
 	public:
-		void build_adj_list(std::string graph_instance_path);
-
 		Graph();
+		void build_adj_list(std::string graph_instance_path);
+		bool is_adjacent(unsigned int &current_vertex, unsigned int &current_vertex_color) const; 
+
 		unsigned int num_vertices;
 		std::vector<std::vector<unsigned int>> adj_list;
 		const std::vector<std::string> graph_instances =
 		{
+			instances_path + "0_test.col",
 			instances_path + "anna.col",
 			instances_path + "david.col",
 			instances_path + "DSJC500.9.col",
