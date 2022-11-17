@@ -17,7 +17,6 @@ namespace GP
 	public:
 		Graph();
 		void build_adj_list(std::string graph_instance_path);
-		bool is_adjacent(unsigned int &current_vertex, unsigned int &current_vertex_color) const; 
 
 		unsigned int num_vertices;
 		std::vector<std::vector<unsigned int>> adj_list;

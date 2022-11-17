@@ -14,7 +14,7 @@ namespace GA
 	
 	private:
 		std::vector<std::vector<unsigned int>> population;
-		const unsigned int population_num = 200;
+		const unsigned int population_num = 4;
 	
 	public:
 		Genetic_algorithm(unsigned int graph_num_vertices);
