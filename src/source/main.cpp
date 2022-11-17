@@ -6,11 +6,10 @@
 int main ()
 {	
 	GP::Graph graph;
-	graph.build_adj_list(graph.graph_instances[0]);
+	graph.build_adj_list(graph.graph_instances[1]);
 
-	GA::Genetic_algorithm ga(graph.num_vertices);
-	ga.init_population();
-	ga.objective_function(graph);
+	GA::Genetic_algorithm ga(graph);
+	ga.search();
 	
 	return 0;
 }

@@ -5,10 +5,11 @@ GP::Graph::Graph() : num_vertices(0)
 	
 }
 
+
 void GP::Graph::build_adj_list(std::string graph_instance_path)
 {
 	// summary
-	// read the instances file in order to fill the adjacency list
+	// read the DIMACS instances file in order to fill the adjacency list
 	
 	std::ifstream graph_instance (graph_instance_path);
 	std::string line;
