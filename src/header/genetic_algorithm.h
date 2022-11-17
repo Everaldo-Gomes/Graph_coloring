@@ -16,11 +16,11 @@ namespace GA
 	
 	private:
 		void init_population();
-		std::vector<std::tuple<size_t, size_t, std::vector<size_t>>> objective_function() const;
+		std::vector<std::tuple<unsigned int, unsigned int, std::vector<unsigned int>>> objective_function() const;
 		
 		GP::Graph graph;
-		const size_t population_num = 10;
-		std::vector<std::vector<size_t>> population;
+		const unsigned int population_num = 200;
+		std::vector<std::vector<unsigned int>> population;
 	
 	public:
 		void search();

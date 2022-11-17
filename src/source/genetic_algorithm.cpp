@@ -3,7 +3,7 @@
 GA::Genetic_algorithm::Genetic_algorithm(GP::Graph &graph) : graph(graph)
 {
 	// +1 because the first position (0) wont be used, only from 1 to n.
-	population.resize(population_num, std::vector<size_t> (graph.num_vertices + 1));
+	population.resize(population_num, std::vector<unsigned int> (graph.num_vertices + 1));
 }
 
 
@@ -13,17 +13,33 @@ void GA::Genetic_algorithm::search()
 	// call all phases in the genetic algorithm
 
 	init_population();
+	auto evaluated_population = objective_function();
 
 	// sorting by the number of colors in each solution
-	auto evaluated_population = objective_function();
 	sort(evaluated_population.begin(), evaluated_population.end());
 
-	// ========================DELETE=======================================
+	
+
+	// ======================= DELETE - DEBUG ==================================
+
+	for(int i = 1; i<=4; i++)
+	{
+		std::cout << i << "---> ";
+		std::vector<unsigned int>::iterator it;
+		
+		for(it = graph.adj_list[i].begin(); it != graph.adj_list[i].end(); ++it)
+			std::cout << *it << " ";
+
+		std::cout << "\n";
+	}
+	std::cout << "\n\n";
+	
 	// print vector of tuple
+	std::cout << "k c    v...\n";
 	for (size_t i = 0; i < evaluated_population.size(); i++)
 	{
 		int k, c;
-		std::vector<size_t> v;
+		std::vector<unsigned int> v;
 		
 		auto t = evaluated_population[i];
 
@@ -52,35 +68,37 @@ void GA::Genetic_algorithm::init_population()
 }
 
 
-std::vector<std::tuple<size_t, size_t, std::vector<size_t>>> GA::Genetic_algorithm::objective_function() const
+std::vector<std::tuple<unsigned int, unsigned int, std::vector<unsigned int>>> GA::Genetic_algorithm::objective_function() const
 {
 	// summary
 	// check if adjacencies vertecies have the same color
 	// count quantity of colors in each possible solution and quantity of conflicts
 	// return the same population with its quantity of conflicts
 	
-	std::vector<std::tuple<size_t, size_t, std::vector<size_t>>> evaluated_population(population_num);
+	std::vector<std::tuple<unsigned int, unsigned int, std::vector<unsigned int>>> evaluated_population(population_num);
 
 	for (size_t i = 0; i < population_num; i++)
 	{
-		std::set<size_t> color_qnt;
-		size_t conflict_count = 0;
+		std::set<unsigned int> color_qnt;
+		unsigned int conflict_count = 0;
 
 		for (size_t current_vertex = 1; current_vertex <= graph.num_vertices; current_vertex++)
 		{
-			const size_t current_vertex_color = population[i][current_vertex];
+			const unsigned int current_vertex_color = population[i][current_vertex];
 			color_qnt.insert(current_vertex_color);
 
 			// searching in the adjacency list
 			// check if the color in the vertex k is the same as its adjacancy veterx in the population
 			// if so, there is a conflict
 				
-			for(size_t k = 1; k < graph.adj_list[current_vertex].size(); k++)
+			for(size_t k = 0; k < graph.adj_list[current_vertex].size(); k++)
 			{
-				const size_t population_vertex = graph.adj_list[current_vertex][k];
-					
-				if (population[i][population_vertex] == current_vertex_color)
-					conflict_count++;						
+				const unsigned int population_vertex = graph.adj_list[current_vertex][k];
+
+				// population_vertex must be >= to the current_vertex
+				// becuase the colors before it were already counted
+				if (population_vertex >= current_vertex && population[i][population_vertex] == current_vertex_color)
+					conflict_count++;		
 			}		
 		}
 
