@@ -1,8 +1,10 @@
 #pragma once
 
-#include <iostream>
+#include <set>
+#include <tuple>
 #include <vector>
-#include <map>
+#include <iostream>
+#include <algorithm>
 
 #include "../header/graph.h"
 
@@ -14,14 +16,14 @@ namespace GA
 	
 	private:
 		void init_population();
-		std::map<unsigned int, std::vector<unsigned int>> objective_function() const;
+		std::vector<std::tuple<size_t, size_t, std::vector<size_t>>> objective_function() const;
 		
 		GP::Graph graph;
-		std::vector<std::vector<unsigned int>> population;
-		const unsigned int population_num = 200;
+		const size_t population_num = 10;
+		std::vector<std::vector<size_t>> population;
 	
 	public:
-		Genetic_algorithm(GP::Graph &graph);
 		void search();
+		Genetic_algorithm(GP::Graph &graph);
 	};	
 }
