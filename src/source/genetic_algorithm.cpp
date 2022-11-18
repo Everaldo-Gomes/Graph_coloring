@@ -4,6 +4,7 @@ GA::Genetic_algorithm::Genetic_algorithm(GP::Graph &graph) : graph(graph)
 {
 	// +1 because the first position (0) wont be used, only from 1 to n.
 	population.resize(population_num, std::vector<unsigned int> (graph.num_vertices + 1));
+	init_population();
 }
 
 
@@ -12,46 +13,8 @@ void GA::Genetic_algorithm::search()
 	// summary
 	// call all phases in the genetic algorithm
 
-	init_population();
 	auto evaluated_population = objective_function();
-
-	// sorting by the number of colors in each solution
-	sort(evaluated_population.begin(), evaluated_population.end());
-
-	
-
-	// ======================= DELETE - DEBUG ==================================
-
-	for(int i = 1; i<=4; i++)
-	{
-		std::cout << i << "---> ";
-		std::vector<unsigned int>::iterator it;
-		
-		for(it = graph.adj_list[i].begin(); it != graph.adj_list[i].end(); ++it)
-			std::cout << *it << " ";
-
-		std::cout << "\n";
-	}
-	std::cout << "\n\n";
-	
-	// print vector of tuple
-	std::cout << "k c    v...\n";
-	for (size_t i = 0; i < evaluated_population.size(); i++)
-	{
-		int k, c;
-		std::vector<unsigned int> v;
-		
-		auto t = evaluated_population[i];
-
-		std::tie(k, c, v) = t;
-		std::cout << k << " " << c << " -> ";
-		
-		for (size_t i = 1; i < v.size(); i++)
-			std::cout << v[i] << " " ;
-
-		std::cout << "\n";
-	}
-	// ======================================================================
+    auto selected_population  = selection(evaluated_population);
 }
 
 
@@ -104,6 +67,60 @@ std::vector<std::tuple<unsigned int, unsigned int, std::vector<unsigned int>>> G
 
 		evaluated_population[i] = std::make_tuple(color_qnt.size(), conflict_count, population[i]);
 	}
-    	
+
+	// sorting by the number of colors in each solution
+	sort(evaluated_population.begin(), evaluated_population.end());
 	return evaluated_population;
 }
+
+
+std::vector<std::vector<unsigned int>> GA::Genetic_algorithm::selection(const auto &evaluated_population) const
+{
+	// summary
+	// Get the first half of the evaluated_population,
+	// which contain the population with the minimum numbers of colors
+
+	const unsigned int half = evaluated_population.size() / 2;
+	std::vector<std::vector<unsigned int>> selected_population (half, std::vector<unsigned int> (graph.num_vertices + 1));
+
+	for (size_t i = 0; i < half; i++)
+	{
+		auto t = evaluated_population[i];
+		std::vector<unsigned int> v;
+		
+		std::tie(std::ignore, std::ignore, v) = t;
+		selected_population[i] = v;
+	}
+    
+	return selected_population;
+}
+
+/*
+	// print vector of tuple
+	std::cout << "k c    v...\n";
+	for (size_t i = 0; i < evaluated_population.size(); i++)
+	{
+		int k, c;
+		std::vector<unsigned int> v;
+		
+		auto t = evaluated_population[i];
+
+		std::tie(k, c, v) = t;
+		std::cout << k << " " << c << " -> ";
+		
+		// for (size_t i = 1; i < v.size(); i++)
+		// 	std::cout << v[i] << " " ;
+
+		std::cout << "\n";
+	}
+	
+
+int half = 100;
+	for (size_t j = 0; j < half; j++)
+	{
+		std::cout << j << " \t";
+		for (size_t i = 1; i <= graph.num_vertices; i++)
+			std::cout << selected_population[j][i] << " ";
+		std::cout << "\n";
+	}
+*/
