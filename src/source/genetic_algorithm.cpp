@@ -15,6 +15,7 @@ void GA::Genetic_algorithm::search()
 
 	auto evaluated_population = objective_function();
     auto selected_population  = selection(evaluated_population);
+	crossover(selected_population);
 }
 
 
@@ -65,10 +66,9 @@ std::vector<std::tuple<unsigned int, unsigned int, std::vector<unsigned int>>> G
 			}		
 		}
 
-		evaluated_population[i] = std::make_tuple(color_qnt.size(), conflict_count, population[i]);
+		evaluated_population[i] = std::make_tuple(conflict_count, color_qnt.size(), population[i]);
 	}
 
-	// sorting by the number of colors in each solution
 	sort(evaluated_population.begin(), evaluated_population.end());
 	return evaluated_population;
 }
@@ -86,37 +86,23 @@ std::vector<std::vector<unsigned int>> GA::Genetic_algorithm::selection(const au
 	for (size_t i = 0; i < half; i++)
 	{
 		auto t = evaluated_population[i];
-		std::vector<unsigned int> v;
-		
-		std::tie(std::ignore, std::ignore, v) = t;
-		selected_population[i] = v;
+		selected_population[i] = std::get<2>(t);
 	}
-    
+
 	return selected_population;
 }
 
-/*
-	// print vector of tuple
-	std::cout << "k c    v...\n";
-	for (size_t i = 0; i < evaluated_population.size(); i++)
-	{
-		int k, c;
-		std::vector<unsigned int> v;
-		
-		auto t = evaluated_population[i];
 
-		std::tie(k, c, v) = t;
-		std::cout << k << " " << c << " -> ";
-		
-		// for (size_t i = 1; i < v.size(); i++)
-		// 	std::cout << v[i] << " " ;
+void GA::Genetic_algorithm::crossover(const auto &selected_population) const
+{
 
-		std::cout << "\n";
-	}
 	
-
-int half = 100;
-	for (size_t j = 0; j < half; j++)
+	
+	// before retruning the new popuplation of offsprings
+	// perform mutation if some probability
+}
+/*
+	for (size_t j = 0; j < 100; j++)
 	{
 		std::cout << j << " \t";
 		for (size_t i = 1; i <= graph.num_vertices; i++)
