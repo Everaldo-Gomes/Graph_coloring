@@ -16,7 +16,7 @@ namespace GA
 	
 	private:
 		void init_population();
-		void crossover(const auto &selected_population) const;
+		void crossover(const auto &selected_population);
 		std::vector<std::vector<unsigned int>> selection(const auto &evaluated_population) const;
 		std::vector<std::tuple<unsigned int, unsigned int, std::vector<unsigned int>>> objective_function() const;
 		

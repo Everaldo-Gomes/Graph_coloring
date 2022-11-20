@@ -2,7 +2,7 @@
 
 GA::Genetic_algorithm::Genetic_algorithm(GP::Graph &graph) : graph(graph)
 {
-	// +1 because the first position (0) wont be used, only from 1 to n.
+	// +1 because the first position (0) won't be used, only from 1 to n.
 	population.resize(population_num, std::vector<unsigned int> (graph.num_vertices + 1));
 	init_population();
 }
@@ -22,7 +22,7 @@ void GA::Genetic_algorithm::search()
 void GA::Genetic_algorithm::init_population()
 {
 	// summary
-	// for each cromossomo (possible solution), generate random values from 1 to max quantity of vertices
+	// for each cromossome (possible solution), generate random values from 1 to max quantity of vertices
 
 	for (size_t i = 0; i < population_num; i++)
 	{
@@ -93,20 +93,68 @@ std::vector<std::vector<unsigned int>> GA::Genetic_algorithm::selection(const au
 }
 
 
-void GA::Genetic_algorithm::crossover(const auto &selected_population) const
+void GA::Genetic_algorithm::crossover(const auto &selected_population)
 {
+	// summary:
+	// each pair of parents will generate two offsprings and sometimes perform mutation in one of them
 
 	
+	// size of each cromossome. can be index 0, beucase every cromossome has the same length
+	const unsigned int first_half  = selected_population[0].size() / 2;
+	const unsigned int second_half = selected_population[0].size() / 2 + 1;
 	
-	// before retruning the new popuplation of offsprings
-	// perform mutation if some probability
-}
-/*
-	for (size_t j = 0; j < 100; j++)
+	// index of the original population, starting from the half
+	unsigned int k = population.size() / 2 ;
+
+	// for each parent, divided it in two halves
+	// pick genes randomly from the parent A to form the first  half of the offspring A
+	// pick genes randomly from the parent B to form the second half of the offspring A
+	// pick genes randomly from the parent B to form the first  half of the offspring B
+	// pick genes randomly from the parent A to form the second half of the offspring B
+
+	for (size_t parent_index = 0; parent_index < selected_population.size() - 1; parent_index += 2)
 	{
-		std::cout << j << " \t";
-		for (size_t i = 1; i <= graph.num_vertices; i++)
-			std::cout << selected_population[j][i] << " ";
-		std::cout << "\n";
+		std::vector<unsigned int> offspring_a, offspring_b;
+		unsigned int gene_index = 0, gene = 0;
+
+		// first half offspring A 
+		for (size_t h1 = 0; h1 < first_half; h1++)
+		{
+			gene_index = rand() % graph.num_vertices + 1;
+			gene = selected_population[parent_index][gene_index];
+			offspring_a.push_back(gene);
+		}
+
+		// second half offspring A 
+		for (size_t h2 = 0; h2 < second_half; h2++)
+		{
+			gene_index = rand() % graph.num_vertices + 1;
+			gene = selected_population[parent_index+1][gene_index];
+			offspring_a.push_back(gene);
+			
+		}
+
+		// first half offspring B 
+		for (size_t h1 = 0; h1 < first_half; h1++)
+		{
+			gene_index = rand() % graph.num_vertices + 1;
+			gene = selected_population[parent_index+1][gene_index];
+			offspring_b.push_back(gene);
+		}
+
+		// second half offspring B 
+		for (size_t h2 = 0; h2 < second_half; h2++)
+		{
+			gene_index = rand() % graph.num_vertices + 1;
+			gene = selected_population[parent_index][gene_index];
+			offspring_b.push_back(gene);
+		}
+		
+		// muatation
+		
+		// put the offsprings in the original population from the second half to N (which is the worst population starts)
+		population[k]   = offspring_a;
+		population[k+1] = offspring_b;
+		k += 2;
 	}
-*/
+}
