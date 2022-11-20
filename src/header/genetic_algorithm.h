@@ -16,11 +16,15 @@ namespace GA
 	
 	private:
 		void init_population();
-		void crossover(const auto &selected_population);
-		std::vector<std::vector<unsigned int>> selection(const auto &evaluated_population) const;
+		void mutation(std::vector<unsigned int> &offspring) const;
+		void crossover(const std::vector<std::vector<unsigned int>> &selected_population);
 		std::vector<std::tuple<unsigned int, unsigned int, std::vector<unsigned int>>> objective_function() const;
+
+		std::vector<std::vector<unsigned int>>
+		selection(const std::vector<std::tuple<unsigned int, unsigned int, std::vector<unsigned int>>> &evaluated_population) const;
 		
 		GP::Graph graph;
+		unsigned int generation_num;
 		const unsigned int population_num = 200;
 		std::vector<std::vector<unsigned int>> population;
 	
