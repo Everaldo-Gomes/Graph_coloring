@@ -134,8 +134,7 @@ void GA::Genetic_algorithm::crossover(const std::vector<std::vector<unsigned int
 		{
 			gene_index = rand() % graph.num_vertices + 1;
 			gene = selected_population[parent_index+1][gene_index];
-			offspring_a.push_back(gene);
-			
+			offspring_a.push_back(gene);	
 		}
 
 		// first half offspring B 
@@ -155,7 +154,7 @@ void GA::Genetic_algorithm::crossover(const std::vector<std::vector<unsigned int
 		}
 
 		// mutate when reach this amount of generations
-		if (generation_num == 1000)
+		if (generation_num == 700)
 		{
 			// selecting an offspring to be mutated
 			const unsigned int v = rand() % graph.num_vertices + 1;
@@ -181,7 +180,52 @@ void GA::Genetic_algorithm::crossover(const std::vector<std::vector<unsigned int
 void GA::Genetic_algorithm::mutation(std::vector<unsigned int> &offspring) const
 {
 	// summary
+	// change only two genes
+	// pick the color that repeats more and change for the one that has less occurrences
+
+	// count colors
+	std::map<unsigned int, unsigned int> qnt;
 	
+	for (size_t i = 0; i < offspring.size(); i++)
+	{
+		const unsigned int color = offspring[i];
+		qnt[color]++;
+	}
+
+	// search for the minimum and maximum color quantity
+	unsigned int ma = 0, mi = 10E7, color_max, color_mim;
+
+	for (auto x : qnt)
+	{
+		if (ma < x.second)
+		{
+			ma = x.second;
+			color_max = x.first;
+		}
+
+		if (mi > x.second)
+		{
+			mi = x.second;
+			color_mim = x.first;
+		}
+	}
 	
-	//return offspring;
+	// search in the offspring the first occurence of the maximum e minimum values and set the new value
+	const unsigned int stop = 10E7;
+	unsigned int max_index = stop, mim_index = stop;
+	
+	for (size_t i = 0; i < offspring.size(); i++)
+	{
+		if (max_index != stop && mim_index != stop)
+		{
+			offspring[max_index] = offspring[mim_index];
+			break;
+		}
+			
+		if (offspring[i] == color_max)
+			max_index = i;
+		
+		if (offspring[i] == color_mim)
+			mim_index = i;
+	}
 }
