@@ -12,13 +12,16 @@ void GA::Genetic_algorithm::search()
 {
 	// summary
 	// call all phases in the genetic algorithm
+	
+    // stop critiria
+	unsigned int max_generation = 20;//200000;
 
-	// while (1)  stop critiria
-	// {
+	while (max_generation--) 
+	{
 		auto evaluated_population = objective_function();
 		std::vector<std::vector<unsigned int>> selected_population = selection(evaluated_population);
 		crossover(selected_population);
-		//}
+	}
 }
 
 
@@ -40,7 +43,7 @@ std::vector<std::tuple<unsigned int, unsigned int, std::vector<unsigned int>>> G
 	// summary
 	// check if adjacencies vertecies have the same color
 	// count quantity of colors in each possible solution and quantity of conflicts
-	// return the same population with its quantity of conflicts
+	// return the same population with its quantity of conflicts and colors
 	
 	std::vector<std::tuple<unsigned int, unsigned int, std::vector<unsigned int>>> evaluated_population(population_num);
 
@@ -69,9 +72,9 @@ std::vector<std::tuple<unsigned int, unsigned int, std::vector<unsigned int>>> G
 			}		
 		}
 
-		evaluated_population[i] = std::make_tuple(conflict_count, color_qnt.size(), population[i]);
+		evaluated_population[i] = std::make_tuple(color_qnt.size(), conflict_count, population[i]);
 	}
-
+	
 	sort(evaluated_population.begin(), evaluated_population.end());
 	return evaluated_population;
 }
@@ -81,16 +84,18 @@ std::vector<std::vector<unsigned int>>
 GA::Genetic_algorithm::selection(const std::vector<std::tuple<unsigned int, unsigned int, std::vector<unsigned int>>> &evaluated_population) const
 {
 	// summary
-	// Get the first half of the evaluated_population,
-	// which contain the population with the minimum numbers of colors
+	// Get the population which only have the conflict value equal to 0
 
-	const unsigned int half = evaluated_population.size() / 2;
-	std::vector<std::vector<unsigned int>> selected_population (half, std::vector<unsigned int> (graph.num_vertices + 1));
+	std::vector<std::vector<unsigned int>> selected_population (population_num, std::vector<unsigned int> (graph.num_vertices + 1));
 
-	for (size_t i = 0; i < half; i++)
+	for (size_t i = 0; i < evaluated_population.size(); i++)
 	{
-		auto t = evaluated_population[i];
-		selected_population[i] = std::get<2>(t);
+		const auto t = evaluated_population[i];
+		const unsigned int conflict_qnt     = std::get<1>(t);
+		const std::vector<unsigned int> vec = std::get<2>(t);
+
+		if (conflict_qnt == 0)
+			selected_population[i] = vec;			
 	}
 
 	return selected_population;
