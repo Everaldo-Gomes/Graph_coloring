@@ -1,5 +1,10 @@
 #include "../header/genetic_algorithm.h"
 
+// NOTE:
+// Every operation that has -1. is because the list is not using the first position
+// therefore it has an additional position that is not being used
+
+
 GA::Genetic_algorithm::Genetic_algorithm(GP::Graph &graph) : graph(graph), generation_num(0)
 {
 	// +1 because the first position (0) won't be used, only from 1 to n.
@@ -14,12 +19,12 @@ void GA::Genetic_algorithm::search()
 	// call all phases in the genetic algorithm
 	
     // stop critiria
-	unsigned int max_generation = 20;//200000;
+	unsigned int max_generation = 1;//700000;
 
 	while (max_generation--) 
 	{
 		auto evaluated_population = objective_function();
-		std::vector<std::vector<unsigned int>> selected_population = selection(evaluated_population);
+		auto selected_population = selection(evaluated_population);		
 		crossover(selected_population);
 	}
 }
@@ -86,16 +91,16 @@ GA::Genetic_algorithm::selection(const std::vector<std::tuple<unsigned int, unsi
 	// summary
 	// Get the population which only have the conflict value equal to 0
 
-	std::vector<std::vector<unsigned int>> selected_population (population_num, std::vector<unsigned int> (graph.num_vertices + 1));
-
+	std::vector<std::vector<unsigned int>> selected_population (population_num, std::vector<unsigned int> (graph.num_vertices + 1, 1));
+	
 	for (size_t i = 0; i < evaluated_population.size(); i++)
 	{
 		const auto t = evaluated_population[i];
 		const unsigned int conflict_qnt     = std::get<1>(t);
 		const std::vector<unsigned int> vec = std::get<2>(t);
-
+		
 		if (conflict_qnt == 0)
-			selected_population[i] = vec;			
+			selected_population[i] = vec;
 	}
 
 	return selected_population;
@@ -106,26 +111,24 @@ void GA::Genetic_algorithm::crossover(const std::vector<std::vector<unsigned int
 {
 	// summary
 	// each pair of parents will generate two offsprings and sometimes perform mutation in one of them
-	
-	// size of each cromossome. can be index 0, beucase every cromossome has the same length
-	const unsigned int first_half  = selected_population[0].size() / 2;
-	const unsigned int second_half = selected_population[0].size() / 2 + 1;
-	
-	// index of the original population, starting from the half
-	unsigned int k = population.size() / 2 ;
-	
 
-	// for each parent, divided it in two halves
-	// pick genes randomly from the parent A to form the first  half of the offspring A
-	// pick genes randomly from the parent B to form the second half of the offspring A
-	// pick genes randomly from the parent B to form the first  half of the offspring B
-	// pick genes randomly from the parent A to form the second half of the offspring B
+	// for all offsprings
+	// fill first  half with the first  parent picking randomly
+	// fill second half with the second aprent picking randomly
 
+	// index can be 0, because every cromossome has the same length
+	const unsigned int selected_population_size = selected_population[0].size() - 1;
+	const unsigned int first_half  = selected_population_size / 2;
+	unsigned int second_half = selected_population_size;
+	
+	if (selected_population[0].size() - 1 != 0)
+	 	second_half = selected_population_size - first_half;
+	    
 	for (size_t parent_index = 0; parent_index < selected_population.size() - 1; parent_index += 2)
 	{
 		std::vector<unsigned int> offspring_a, offspring_b;
 		unsigned int gene_index = 0, gene = 0;
-
+		
 		// first half offspring A 
 		for (size_t h1 = 0; h1 < first_half; h1++)
 		{
@@ -139,10 +142,10 @@ void GA::Genetic_algorithm::crossover(const std::vector<std::vector<unsigned int
 		{
 			gene_index = rand() % graph.num_vertices + 1;
 			gene = selected_population[parent_index+1][gene_index];
-			offspring_a.push_back(gene);	
+			offspring_a.push_back(gene);
 		}
 
-		// first half offspring B 
+		// first half offspring B
 		for (size_t h1 = 0; h1 < first_half; h1++)
 		{
 			gene_index = rand() % graph.num_vertices + 1;
@@ -157,6 +160,10 @@ void GA::Genetic_algorithm::crossover(const std::vector<std::vector<unsigned int
 			gene = selected_population[parent_index][gene_index];
 			offspring_b.push_back(gene);
 		}
+		
+	
+		// index of the original population, starting from the half
+		unsigned int k = population.size() / 2 ;
 
 		// mutate when reach this amount of generations
 		if (generation_num == 700)
@@ -175,7 +182,7 @@ void GA::Genetic_algorithm::crossover(const std::vector<std::vector<unsigned int
 		// put the offsprings in the original population from the second half to N (which is the worst population starts)
 		population[k]   = offspring_a;
 		population[k+1] = offspring_b;
-		k += 2;
+		k += 2; 
 	}
 
 	generation_num++;
@@ -198,7 +205,7 @@ void GA::Genetic_algorithm::mutation(std::vector<unsigned int> &offspring) const
 	}
 
 	// search for the minimum and maximum color quantity
-	unsigned int ma = 0, mi = 10E7, color_max, color_mim;
+	unsigned int ma = 0, mi = UINT_MAX, color_max, color_mim;
 
 	for (auto x : qnt)
 	{
@@ -216,7 +223,7 @@ void GA::Genetic_algorithm::mutation(std::vector<unsigned int> &offspring) const
 	}
 	
 	// search in the offspring the first occurence of the maximum e minimum values and set the new value
-	const unsigned int stop = 10E7;
+	const unsigned int stop = UINT_MAX;
 	unsigned int max_index = stop, mim_index = stop;
 	
 	for (size_t i = 0; i < offspring.size(); i++)
