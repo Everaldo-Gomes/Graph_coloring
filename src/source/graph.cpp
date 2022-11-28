@@ -31,7 +31,7 @@ void GP::Graph::build_adj_list(std::string graph_instance_path)
 				if (i == 3)
 				{
 					num_vertices = stoi(value);
-					adj_list.resize(stoi(line));
+					adj_list.resize(num_vertices + 1);
 				}						
 			}
 		}
