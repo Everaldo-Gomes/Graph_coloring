@@ -1,5 +1,5 @@
-#include <iostream>
 #include <time.h>
+#include <iostream>
  
 #include "../header/graph.h"
 #include "../header/genetic_algorithm.h"
