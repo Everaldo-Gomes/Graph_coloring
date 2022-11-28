@@ -2,10 +2,10 @@
 # variables
 # =================================================
 
-path_bin      = ./bin
-source_path   = ./src/source
-graph_path    = ./src/graph_instances
-compile_flags = g++ -g -Wall -o2 -std=c++20
+path_bin        = ./bin
+source_path     = ./src/source
+graph_path      = ./src/graph_instances
+compile_flags   = g++ -g -Wall -o2 -std=c++20
 
 
 # =================================================
@@ -33,13 +33,16 @@ all: clean source run
 
 source: ${source_path}/*.cpp
 
-	$(info ******************* Compiling *****************)
-	$(info ***********************************************)
+	$(info ******************* Compiling *******************)
+	$(info *************************************************)
 
 	@${compile_flags} ${source_path}/*.cpp -o ${path_bin}/exe
 	@clear
 
 run:
+	$(info ******************* Running *********************)
+	$(info *************************************************)
+
 	@${exe_command} ${path_bin}/exe
 
 clean:
