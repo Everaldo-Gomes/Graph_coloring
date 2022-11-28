@@ -4,7 +4,9 @@
 #include <set>
 #include <tuple>
 #include <vector>
+#include <chrono>
 #include <climits>
+#include <stdlib.h>
 #include <iostream>
 #include <algorithm>
 
@@ -23,12 +25,15 @@ namespace GA
 		std::vector<std::tuple<unsigned int, unsigned int, std::vector<unsigned int>>> objective_function() const;
 
 		std::vector<std::vector<unsigned int>>
-		selection(const std::vector<std::tuple<unsigned int, unsigned int, std::vector<unsigned int>>> &evaluated_population) const;
+		selection(const std::vector<std::tuple<unsigned int, unsigned int, std::vector<unsigned int>>> &evaluated_population);
 		
 		GP::Graph graph;
+		unsigned int min_color;
+		unsigned int conflict_qnt;
 		unsigned int generation_num;
 		const unsigned int population_num = 200;
 		std::vector<std::vector<unsigned int>> population;
+
 	
 	public:
 		void search();

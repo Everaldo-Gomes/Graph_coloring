@@ -5,8 +5,8 @@
 // therefore it has an additional position that is not being used
 
 
-GA::Genetic_algorithm::Genetic_algorithm(GP::Graph &graph) : graph(graph), generation_num(0)
-{
+GA::Genetic_algorithm::Genetic_algorithm(GP::Graph &graph) : graph(graph), min_color(UINT_MAX), conflict_qnt(UINT_MAX), generation_num(0)
+{   
 	// +1 because the first position (0) won't be used, only from 1 to n.
 	population.resize(population_num, std::vector<unsigned int> (graph.num_vertices + 1));
 	init_population();
@@ -18,14 +18,25 @@ void GA::Genetic_algorithm::search()
 	// summary
 	// call all phases in the genetic algorithm
 	
-    // stop critiria
-	unsigned int max_generation = 1;//700000;
-
-	while (max_generation--) 
+    // stop critiria is givin in seconds	
+	auto start = std::chrono::high_resolution_clock::now();
+	const unsigned int time_limit = 120;
+	while (true) 
 	{
 		auto evaluated_population = objective_function();
-		auto selected_population = selection(evaluated_population);		
+		auto selected_population  = selection(evaluated_population);
 		crossover(selected_population);
+	    
+		auto stop = std::chrono::high_resolution_clock::now();
+		auto duration = std::chrono::duration_cast<std::chrono::seconds>(stop - start);
+
+		std::system("clear");
+		std::cout << "Conflicts: " << conflict_qnt << "\n"
+				  << "Colors:    " << min_color    << "\n";
+		std::cout << "Time:      " << duration.count() << "/" << time_limit << " secs\n";
+		
+		if (duration >= std::chrono::seconds(time_limit))
+			break;
 	}
 }
 
@@ -79,14 +90,14 @@ std::vector<std::tuple<unsigned int, unsigned int, std::vector<unsigned int>>> G
 
 		evaluated_population[i] = std::make_tuple(color_qnt.size(), conflict_count, population[i]);
 	}
-	
+
 	sort(evaluated_population.begin(), evaluated_population.end());
 	return evaluated_population;
 }
 
 
 std::vector<std::vector<unsigned int>>
-GA::Genetic_algorithm::selection(const std::vector<std::tuple<unsigned int, unsigned int, std::vector<unsigned int>>> &evaluated_population) const
+GA::Genetic_algorithm::selection(const std::vector<std::tuple<unsigned int, unsigned int, std::vector<unsigned int>>> &evaluated_population)
 {
 	// summary
 	// Get the population which only have the conflict value equal to 0
@@ -96,10 +107,16 @@ GA::Genetic_algorithm::selection(const std::vector<std::tuple<unsigned int, unsi
 	for (size_t i = 0; i < evaluated_population.size(); i++)
 	{
 		const auto t = evaluated_population[i];
-		const unsigned int conflict_qnt     = std::get<1>(t);
+		const unsigned conflict_num = std::get<1>(t);
 		const std::vector<unsigned int> vec = std::get<2>(t);
-		
-		if (conflict_qnt == 0)
+
+		if (min_color > std::get<0>(t) && conflict_num == 0)
+		{
+			min_color = std::get<0>(t);
+			conflict_qnt = conflict_num;
+		}
+			
+		if (conflict_num <= 10)
 			selected_population[i] = vec;
 	}
 
@@ -163,10 +180,10 @@ void GA::Genetic_algorithm::crossover(const std::vector<std::vector<unsigned int
 		
 	
 		// index of the original population, starting from the half
-		unsigned int k = population.size() / 2 ;
+		unsigned int k = population.size() / 2;
 
 		// mutate when reach this amount of generations
-		if (generation_num == 700)
+		if (generation_num == 666)
 		{
 			// selecting an offspring to be mutated
 			const unsigned int v = rand() % graph.num_vertices + 1;
