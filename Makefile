@@ -5,7 +5,7 @@
 path_bin        = ./bin
 source_path     = ./src/source
 graph_path      = ./src/graph_instances
-compile_flags   = g++ -g -Wall -o2 -std=c++20
+compile_flags   = g++ -g -ggdb -Wall -Weffc++ -Wextra -Wsign-conversion -Werror -o2 -std=c++20 
 
 
 # =================================================
