@@ -1,8 +1,8 @@
 #include "../header/graph.h"
+#include <iostream>
 
-GP::Graph::Graph() : num_vertices(0), adj_list(0, std::vector<unsigned int>(0))
+GP::Graph::Graph() : adj_list(0, std::vector<int>(0))
 {
-	
 }
 
 
@@ -26,11 +26,11 @@ void GP::Graph::build_adj_list(std::string graph_instance_path)
 			{
 				value = line.substr(0, pos);
 				line.erase(0, pos + delimiter.length());
-				i++;
+				++i;
 
 				if (i == 3)
 				{
-					num_vertices = (unsigned int) stoi(value);
+					num_vertices = (size_t) stoi(value);
 					adj_list.resize(num_vertices + 1);
 				}						
 			}
@@ -46,18 +46,18 @@ void GP::Graph::build_adj_list(std::string graph_instance_path)
 			{
 				value = line.substr(0, pos);
 				line.erase(0, pos + delimiter.length());
-				i++;
+				++i;
 				
 				if (i == 2)
 				{
-					u = (unsigned int) stoi(value);
-					v = (unsigned int) stoi(line);
+					u = (size_t) stoi(value);
+					v = (size_t) stoi(line);
 				}
 			}
 			
 			adj_list[u].push_back(v);
 			adj_list[v].push_back(u);
-		}
+		} 
 	}
 
 	graph_instance.close();

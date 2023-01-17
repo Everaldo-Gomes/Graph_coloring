@@ -1,10 +1,11 @@
 #pragma once
 
-#include <stdio.h>
-#include <string.h>
+#include <memory>
 #include <vector>
+#include <stdio.h>
 #include <fstream>
 #include <iostream>
+#include <string.h>
 
 namespace GP
 {
@@ -12,15 +13,18 @@ namespace GP
 	{
 
 	private:
-		const std::string instances_path = "./src/graph_instances/";
+		
+		const std::string instances_path {"./src/graph_instances/"};
 
 	public:
+		
 		Graph();
 		void build_adj_list(std::string graph_instance_path);
 
-		unsigned int num_vertices;
-		std::vector<std::vector<unsigned int>> adj_list;
-		const std::vector<std::string> graph_instances =
+		size_t num_vertices {0};
+		std::vector<std::vector<int>> adj_list;
+		
+		const std::vector<std::string> graph_instances
 		{
 			instances_path + "0_test.col",
 			instances_path + "anna.col",
@@ -46,6 +50,8 @@ namespace GP
 			instances_path + "queen6_6.col",
 			instances_path + "queen7_7.col",
 			instances_path + "queen8_8.col",
-		};	
+		}; 
 	};
 }
+
+extern std::unique_ptr<GP::Graph> g_graph;

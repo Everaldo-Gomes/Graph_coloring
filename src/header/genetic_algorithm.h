@@ -19,26 +19,27 @@ namespace GA
 	{
 	
 	private:
+		
 		void init_population();
-		void decrease_colors(std::vector<unsigned int> &parent);
-		void mutation(std::vector<unsigned int> &offspring) const;
-		void crossover(std::vector<std::vector<unsigned int>> &selected_population);
-		std::vector<std::tuple<unsigned int, unsigned int, std::vector<unsigned int>>> objective_function() const;
+		void decrease_colors(std::vector<int> &parent);
+		void mutation(std::vector<int> &offspring) const;
+		void crossover(std::vector<std::vector<int>> &selected_population);
+		std::vector<std::tuple<int, int, std::vector<int>>> objective_function() const;
 
-		std::vector<std::vector<unsigned int>>
-		selection(const std::vector<std::tuple<unsigned int, unsigned int, std::vector<unsigned int>>> &evaluated_population);
+		std::vector<std::vector<int>>
+		selection(const std::vector<std::tuple<int, int, std::vector<int>>> &evaluated_population);
 
 		
-		GP::Graph graph;
-		unsigned int min_color;
-		unsigned int conflict_qnt;
-		unsigned int generation_num;
-		const unsigned int population_num = 100;
-		std::vector<std::vector<unsigned int>> population;
-
+		int min_color      {INT_MAX};
+		int conflict_qnt   {INT_MAX};
+		int generation_num {0};
+		const int population_num {100};
+		std::vector<std::vector<int>> population;
+		
 	
 	public:
+		
+		Genetic_algorithm();
 		void search();
-		Genetic_algorithm(GP::Graph &graph);
 	};	
 }

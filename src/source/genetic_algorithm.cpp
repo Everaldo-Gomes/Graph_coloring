@@ -5,12 +5,10 @@
 // therefore it has an additional position that is not being used
 
 
-GA::Genetic_algorithm::Genetic_algorithm(GP::Graph &graph) : graph(graph), min_color(UINT_MAX), conflict_qnt(UINT_MAX), generation_num(0),
-															 population(0, std::vector<unsigned int>(0))
+GA::Genetic_algorithm::Genetic_algorithm() : population(0, std::vector<int>(0))
 {   
 	// +1 because the first position (0) won't be used, only from 1 to n.
-	population.resize(population_num, std::vector<unsigned int> (graph.num_vertices + 1));
-	init_population();
+	population.resize((size_t)population_num, std::vector<int> (g_graph->num_vertices + 1));
 }
 
 
@@ -21,19 +19,20 @@ void GA::Genetic_algorithm::search()
 	
     // stop critiria is given in seconds	
 	auto start {std::chrono::high_resolution_clock::now()};
-	const unsigned int time_limit {120};
+	constexpr int time_limit {120};
 	
+	// init_population();
 	while (true) 
 	{
-		auto evaluated_population = objective_function();
-		auto selected_population  = selection(evaluated_population);
-		crossover(selected_population);
+	// 	auto evaluated_population = objective_function();
+	// 	auto selected_population  = selection(evaluated_population);
+	// 	crossover(selected_population);
 		
 		auto stop     {std::chrono::high_resolution_clock::now()};
 		auto duration {std::chrono::duration_cast<std::chrono::seconds>(stop - start)};
 
 		std::system("clear");
-		std::cout << "Conflicts: " << conflict_qnt << "\n"
+		std::cerr << "Conflicts: " << conflict_qnt << "\n"
 				  << "Colors:    " << min_color    << "\n"
 				  << "Time:      " << duration.count() << "/" << time_limit << " secs\n";
 		
@@ -42,7 +41,7 @@ void GA::Genetic_algorithm::search()
 	}
 }
 
-
+/*
 void GA::Genetic_algorithm::init_population()
 {
 	// summary
@@ -51,28 +50,28 @@ void GA::Genetic_algorithm::init_population()
 	for (size_t i = 0; i < population_num; i++)
 	{
 		for (size_t j = 1; j <= graph.num_vertices; j++)
-			population[i][j] = (unsigned int) rand() % graph.num_vertices + 1;
+			population[i][j] = (int) rand() % graph.num_vertices + 1;
 	}
 }
 
 
-std::vector<std::tuple<unsigned int, unsigned int, std::vector<unsigned int>>> GA::Genetic_algorithm::objective_function() const
+std::vector<std::tuple<int, int, std::vector<int>>> GA::Genetic_algorithm::objective_function() const
 {
 	// summary
 	// check if adjacencies vertecies have the same color
 	// count quantity of colors in each possible solution and quantity of conflicts
 	// return the same population with its quantity of conflicts and colors
 	
-	std::vector<std::tuple<unsigned int, unsigned int, std::vector<unsigned int>>> evaluated_population(population_num);
+	std::vector<std::tuple<int, int, std::vector<int>>> evaluated_population(population_num);
 
 	for (size_t i = 0; i < population_num; i++)
 	{
-		std::set<unsigned int> color_qnt;
-		unsigned int conflict_count {0};
+		std::set<int> color_qnt;
+		int conflict_count {0};
 
 		for (size_t current_vertex = 1; current_vertex <= graph.num_vertices; current_vertex++)
 		{
-			const unsigned int current_vertex_color = population[i][current_vertex];
+			const int current_vertex_color = population[i][current_vertex];
 			color_qnt.insert(current_vertex_color);
 
 			// searching in the adjacency list
@@ -81,7 +80,7 @@ std::vector<std::tuple<unsigned int, unsigned int, std::vector<unsigned int>>> G
 				
 			for(size_t k = 0; k < graph.adj_list[current_vertex].size(); k++)
 			{
-				const unsigned int population_vertex = graph.adj_list[current_vertex][k];
+				const int population_vertex = graph.adj_list[current_vertex][k];
 
 				// population_vertex must be >= to the current_vertex
 				// because the colors before it were already counted
@@ -98,19 +97,19 @@ std::vector<std::tuple<unsigned int, unsigned int, std::vector<unsigned int>>> G
 }
 
 
-std::vector<std::vector<unsigned int>>
-GA::Genetic_algorithm::selection(const std::vector<std::tuple<unsigned int, unsigned int, std::vector<unsigned int>>> &evaluated_population)
+std::vector<std::vector<int>>
+GA::Genetic_algorithm::selection(const std::vector<std::tuple<int, int, std::vector<int>>> &evaluated_population)
 {
 	// summary
 	// Get the population which only have the conflict value equal to 0
 
-	std::vector<std::vector<unsigned int>> selected_population (population_num, std::vector<unsigned int> (graph.num_vertices + 1, 1));
+	std::vector<std::vector<int>> selected_population (population_num, std::vector<int> (graph.num_vertices + 1, 1));
 	
 	for (size_t i = 0; i < evaluated_population.size(); i++)
 	{
 		const auto t = evaluated_population[i];
-		const unsigned conflict_num = std::get<1>(t);
-		const std::vector<unsigned int> vec = std::get<2>(t);
+		const  conflict_num = std::get<1>(t);
+		const std::vector<int> vec = std::get<2>(t);
 
 		if (min_color > std::get<0>(t) && conflict_num == 0)
 		{
@@ -126,7 +125,7 @@ GA::Genetic_algorithm::selection(const std::vector<std::tuple<unsigned int, unsi
 }
 
 
-void GA::Genetic_algorithm::crossover(std::vector<std::vector<unsigned int>> &selected_population)
+void GA::Genetic_algorithm::crossover(std::vector<std::vector<int>> &selected_population)
 {
 	// summary
 	// each pair of parents will generate two offsprings and sometimes perform mutation in one of them
@@ -136,22 +135,22 @@ void GA::Genetic_algorithm::crossover(std::vector<std::vector<unsigned int>> &se
 	// fill second half with the second aprent picking randomly
 
 	// index can be 0, because every cromossome has the same length
-	const unsigned int selected_population_size = selected_population[0].size() - 1;
-	const unsigned int first_half {selected_population_size / 2};
-	unsigned int second_half {selected_population_size};
+	const int selected_population_size = selected_population[0].size() - 1;
+	const int first_half {selected_population_size / 2};
+	int second_half {selected_population_size};
 	
 	if (selected_population[0].size() - 1 != 0)
 	 	second_half = selected_population_size - first_half;
 	    
 	for (size_t parent_index = 0; parent_index < selected_population.size() - 1; parent_index += 2)
 	{
-		std::vector<unsigned int> offspring_a, offspring_b;
-		unsigned int gene_index {}, gene {};
+		std::vector<int> offspring_a, offspring_b;
+		int gene_index {}, gene {};
 		
 		// first half offspring A 
 		for (size_t h1 = 0; h1 < first_half; h1++)
 		{
-			gene_index = (unsigned int) rand() % graph.num_vertices + 1;
+			gene_index = (int) rand() % graph.num_vertices + 1;
 			gene = selected_population[parent_index][gene_index];
 			offspring_a.push_back(gene);
 		}
@@ -159,7 +158,7 @@ void GA::Genetic_algorithm::crossover(std::vector<std::vector<unsigned int>> &se
 		// second half offspring A 
 		for (size_t h2 = 0; h2 < second_half; h2++)
 		{
-			gene_index = (unsigned int) rand() % graph.num_vertices + 1;
+			gene_index = (int) rand() % graph.num_vertices + 1;
 			gene = selected_population[parent_index+1][gene_index];
 			offspring_a.push_back(gene);
 		}
@@ -167,7 +166,7 @@ void GA::Genetic_algorithm::crossover(std::vector<std::vector<unsigned int>> &se
 		// first half offspring B
 		for (size_t h1 = 0; h1 < first_half; h1++)
 		{
-			gene_index = (unsigned int) rand() % graph.num_vertices + 1;
+			gene_index = (int) rand() % graph.num_vertices + 1;
 			gene = selected_population[parent_index+1][gene_index];
 			offspring_b.push_back(gene);
 		}
@@ -175,20 +174,20 @@ void GA::Genetic_algorithm::crossover(std::vector<std::vector<unsigned int>> &se
 		// second half offspring B 
 		for (size_t h2 = 0; h2 < second_half; h2++)
 		{
-			gene_index = (unsigned int) rand() % graph.num_vertices + 1;
+			gene_index = (int) rand() % graph.num_vertices + 1;
 			gene = selected_population[parent_index][gene_index];
 			offspring_b.push_back(gene);
 		}
 		
 	
 		// index of the original population, starting from the half
-		unsigned int k = population.size() / 2;
+		int k = population.size() / 2;
 
 		// mutate when reach this amount of generations
 		if (generation_num == 200)
 		{
 			// selecting an offspring to be mutated
-			const unsigned int v = (unsigned int) rand() % graph.num_vertices + 1;
+			const int v = (int) rand() % graph.num_vertices + 1;
 			
 			if (v % 2 == 0)
 				mutation(offspring_a);
@@ -210,23 +209,23 @@ void GA::Genetic_algorithm::crossover(std::vector<std::vector<unsigned int>> &se
 }
 
 
-void GA::Genetic_algorithm::mutation(std::vector<unsigned int> &offspring) const
+void GA::Genetic_algorithm::mutation(std::vector<int> &offspring) const
 {
 	// summary
 	// change only two genes
 	// pick the color that repeats more and change for the one that has less occurrences
 
 	// count colors
-	std::map<unsigned int, unsigned int> qnt;
+	std::map<int, int> qnt;
 	
 	for (size_t i = 0; i < offspring.size(); i++)
 	{
-		const unsigned int color = offspring[i];
+		const int color = offspring[i];
 		qnt[color]++;
 	}
 
 	// search for the minimum and maximum color quantity
-	unsigned int ma = 0, mi = UINT_MAX, color_max, color_mim;
+	int ma = 0, mi = UINT_MAX, color_max, color_mim;
 
 	for (auto x : qnt)
 	{
@@ -244,8 +243,8 @@ void GA::Genetic_algorithm::mutation(std::vector<unsigned int> &offspring) const
 	}
 	
 	// search in the offspring the first occurence of the maximum e minimum values and set the new value
-	const unsigned int stop = UINT_MAX;
-	unsigned int max_index = stop, mim_index = stop;
+	const int stop = UINT_MAX;
+	int max_index = stop, mim_index = stop;
 	
 	for (size_t i = 0; i < offspring.size(); i++)
 	{
@@ -264,23 +263,23 @@ void GA::Genetic_algorithm::mutation(std::vector<unsigned int> &offspring) const
 }
 
 
-void GA::Genetic_algorithm::decrease_colors(std::vector<unsigned int> &parent)
+void GA::Genetic_algorithm::decrease_colors(std::vector<int> &parent)
 {
 	// summary
 	// descrease the number of colors from each pair of parents by 1
 	// picking the color the appears less and replace it for color 1
 
 	// count colors
-	std::map<unsigned int, unsigned int> qnt_colors;
+	std::map<int, int> qnt_colors;
 	
 	for (size_t i = 0; i < parent.size(); i++)
 	{
-		const unsigned int color = parent[i];
+		const int color = parent[i];
 		qnt_colors[color]++;
 	}
 
 	// search for the maximum color quantity
-	unsigned int qnt = 0, color;
+	int qnt = 0, color;
 
 	for (auto x : qnt_colors)
 	{
@@ -294,14 +293,14 @@ void GA::Genetic_algorithm::decrease_colors(std::vector<unsigned int> &parent)
 	// coloring vertices that are not adjacency to the vertex with the same color
 	for (size_t current_vertex = 1; current_vertex <= graph.num_vertices; current_vertex++)
 	{
-		const unsigned int current_vertex_color = parent[current_vertex];
+		const int current_vertex_color = parent[current_vertex];
 
 		// searching in the adjacency list
 		// check if the color in the vertex k is the same as its adjacancy veterx in the parent
 				
 		for(size_t k = 0; k < graph.adj_list[current_vertex].size(); k++)
 		{
-			const unsigned int parent_vertex = graph.adj_list[current_vertex][k];
+			const int parent_vertex = graph.adj_list[current_vertex][k];
 
 			// parent_vertex must be >= to the current_vertex
 			// because the colors before it were already counted
@@ -310,3 +309,4 @@ void GA::Genetic_algorithm::decrease_colors(std::vector<unsigned int> &parent)
 		}
 	}
 }
+*/
