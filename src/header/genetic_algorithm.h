@@ -6,6 +6,7 @@
 #include <vector>
 #include <chrono>
 #include <climits>
+#include <numeric>
 #include <stdlib.h>
 #include <iostream>
 #include <algorithm>

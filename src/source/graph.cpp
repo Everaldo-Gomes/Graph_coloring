@@ -1,5 +1,5 @@
 #include "../header/graph.h"
-#include <iostream>
+#include <sstream>
 
 GP::Graph::Graph() : adj_list(0, std::vector<int>(0))
 {
@@ -16,45 +16,37 @@ void GP::Graph::build_adj_list(std::string graph_instance_path)
 
 	while (getline(graph_instance, line))
 	{
-		// getting graph info
+		// getting values to set the adjacency list
 		if (line[0] == 'p')
 		{
-			size_t pos {}, i {0};
-			std::string value, delimiter = " ";
-				
-			while ((pos = line.find(delimiter)) != std::string::npos)
-			{
-				value = line.substr(0, pos);
-				line.erase(0, pos + delimiter.length());
-				++i;
+			std::string a, b;
+			int v{}, e{};
 
-				if (i == 3)
-				{
-					num_vertices = (size_t) stoi(value);
-					adj_list.resize(num_vertices + 1);
-				}						
-			}
+			std::istringstream val(line);
+			val >> a;
+			val >> b;
+			val >> v;
+			val >> e;
+
+			// +1 because the first position (0) won't be used.
+			num_vertices = v + 1;   
+			adj_list.resize(num_vertices);
 		}
 
 		// getting graph values to fill adjacency list
 		else if (line[0] == 'e')
 		{
-			size_t pos {}, i {0}, u {0}, v {0};
-			std::string value, delimiter = " ";
-				
-			while ((pos = line.find(delimiter)) != std::string::npos)
-			{
-				value = line.substr(0, pos);
-				line.erase(0, pos + delimiter.length());
-				++i;
-				
-				if (i == 2)
-				{
-					u = (size_t) stoi(value);
-					v = (size_t) stoi(line);
-				}
-			}
-			
+			std::string a{};
+			int u_{}, v_{};
+
+			std::stringstream val(line);
+			val >> a;
+			val >> u_;
+			val >> v_;
+		    
+			auto u = u_;
+			auto v = v_;
+		    
 			adj_list[u].push_back(v);
 			adj_list[v].push_back(u);
 		} 
