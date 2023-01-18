@@ -16,17 +16,22 @@ int main ()
 	
 	g_graph = std::make_unique<GP::Graph>();
 	GA::Genetic_algorithm ga;
-	
-	// for each instance repeat N times
+
 	for (size_t inst = 0; inst < 16; ++inst)
 	{
-		for (size_t j = 0; j < 15; ++j)
+		for (size_t j = 0; j < 1; ++j) // SET TO 15
 		{
-			g_graph->build_adj_list(g_graph->graph_instances[inst]);
+			auto t { g_graph->graph_instances[inst] };
+			const std::string instance { std::get<0>(t) };
+			
+			g_graph->build_adj_list(instance);
+
+			ga.instance_name = std::get<0>(t);
+			ga.instance_xg   = std::get<1>(t);
+			
 			ga.search();		
 		}
 	}
-
 	
 	return 0;
 }

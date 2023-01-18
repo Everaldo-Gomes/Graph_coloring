@@ -1,6 +1,6 @@
 #pragma once
 
-#include <map>
+#include <tuple>
 #include <memory>
 #include <vector>
 #include <stdio.h>
@@ -26,7 +26,7 @@ namespace GP
 	    int num_vertices {0};
 		std::vector<std::vector<int>> adj_list;
 
-		const std::map<std::string, int> graph_instances
+		const std::vector<std::tuple<std::string, int>> graph_instances
 		{
 			{instances_path + "0_test.col",      2},
 			{instances_path + "anna.col",       11},
@@ -45,26 +45,6 @@ namespace GP
 			{instances_path + "queen7_7.col",    7},
 			{instances_path + "queen8_8.col",    9}
 		};
-		/*
-		const std::vector<std::string> graph_instances
-		{
-			instances_path + "0_test.col",
-			instances_path + "anna.col",
-			instances_path + "david.col",
-			instances_path + "fpsol2.i.1.col",
-			instances_path + "games120.col",
-			instances_path + "homer.col",
-			instances_path + "huck.col",
-			instances_path + "jean.col",
-			instances_path + "miles250.col",
-			instances_path + "miles1000.col",
-			instances_path + "myciel3.col",
-			instances_path + "myciel4.col",
-			instances_path + "queen5_5.col",
-			instances_path + "queen6_6.col",
-			instances_path + "queen7_7.col",
-			instances_path + "queen8_8.col",
-			}; */
 	};
 }
 

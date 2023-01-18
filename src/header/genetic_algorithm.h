@@ -20,17 +20,16 @@ namespace GA
 	{
 	
 	private:
-		
+
 		void init_population();
-		void decrease_colors(std::vector<int> &parent);
-		void mutation(std::vector<int> &offspring) const;
-		void crossover(std::vector<std::vector<int>> &selected_population);
+		void decrease_colors(std::vector<int>& parent);
+		void mutation(std::vector<int>& offspring) const;
+		void crossover(std::vector<std::vector<int>>& selected_population);
 		std::vector<std::tuple<int, int, std::vector<int>>> objective_function() const;
-
-		std::vector<std::vector<int>>
-		selection(const std::vector<std::tuple<int, int, std::vector<int>>> &evaluated_population);
-
 		
+		std::vector<std::vector<int>>
+		selection(const std::vector<std::tuple<int, int, std::vector<int>>>& evaluated_population);
+
 		int min_color      {INT_MAX};
 		int conflict_qnt   {INT_MAX};
 		int generation_num {0};
@@ -39,6 +38,9 @@ namespace GA
 		
 	
 	public:
+
+		std::string instance_name {};
+		int instance_xg {0};
 		
 		Genetic_algorithm();
 		void search();

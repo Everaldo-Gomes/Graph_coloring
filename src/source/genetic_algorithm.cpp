@@ -33,8 +33,8 @@ void GA::Genetic_algorithm::search()
 		auto duration {std::chrono::duration_cast<std::chrono::seconds>(stop - start)};
 
 		std::system("clear");
-		std::cerr //<< "Instance:  " << instance_name << "\n"
-				  //<< "XG:        " << instance_xg   << "\n"
+		std::cerr << "Instance:  " << instance_name << "\n"
+				  << "XG:        " << instance_xg   << "\n"
 				  << "Conflicts: " << conflict_qnt  << "\n"
 				  << "Colors:    " << min_color     << "\n"
 				  << "Time:      " << duration.count() << "/" << time_limit << " secs\n";
@@ -134,7 +134,7 @@ GA::Genetic_algorithm::selection(const std::vector<std::tuple<int, int, std::vec
 }
 
 
-void GA::Genetic_algorithm::crossover(std::vector<std::vector<int>> &selected_population)
+void GA::Genetic_algorithm::crossover(std::vector<std::vector<int>>& selected_population)
 {
 	// summary
 	// each pair of parents will generate two offsprings and sometimes perform mutation in one of them
@@ -142,6 +142,10 @@ void GA::Genetic_algorithm::crossover(std::vector<std::vector<int>> &selected_po
 	// for all offsprings
 	// fill first  half with the first  parent picking randomly
 	// fill second half with the second aprent picking randomly
+	
+	//!!!!!!!!!!!!!!!!
+	// try to change the seed in the main file here to see there's any change
+	//!!!!!!!!!!!!!!!
 
 	// index can be 0, because every cromossome has the same length
 	const int selected_population_size = selected_population[0].size() - 1;
@@ -218,7 +222,7 @@ void GA::Genetic_algorithm::crossover(std::vector<std::vector<int>> &selected_po
 }
 
 
-void GA::Genetic_algorithm::mutation(std::vector<int> &offspring) const
+void GA::Genetic_algorithm::mutation(std::vector<int>& offspring) const
 {
 	// summary
 	// change only two genes
@@ -272,7 +276,7 @@ void GA::Genetic_algorithm::mutation(std::vector<int> &offspring) const
 }
 
 
-void GA::Genetic_algorithm::decrease_colors(std::vector<int> &parent)
+void GA::Genetic_algorithm::decrease_colors(std::vector<int>& parent)
 {
 	// summary
 	// descrease the number of colors from each pair of parents by 1
