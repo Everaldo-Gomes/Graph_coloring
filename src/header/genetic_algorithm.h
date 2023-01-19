@@ -34,8 +34,8 @@ namespace GA
 		int min_color      {INT_MAX};
 		int conflict_qnt   {INT_MAX};
 		int generation_num {0};
-		const int population_num {100};
-		std::vector<std::vector<int>> population {0};
+		const int population_num {200};
+		std::vector<std::vector<int>> population;
 		
 	
 	public:

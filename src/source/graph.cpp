@@ -1,7 +1,7 @@
 #include "../header/graph.h"
 #include <sstream>
 
-GP::Graph::Graph()
+GP::Graph::Graph() : adj_list(0, std::vector<int>(0))
 {
 }
 
@@ -29,7 +29,7 @@ void GP::Graph::build_adj_list(std::string graph_instance_path)
 			val >> e;
 
 			// +1 because the first position (0) won't be used.
-			num_vertices = v + 1;   
+			num_vertices = v + 1;
 			adj_list.resize(num_vertices);
 		}
 
