@@ -5,7 +5,7 @@
 // therefore it has an additional position that is not being used
 
 
-GA::Genetic_algorithm::Genetic_algorithm() : population(0, std::vector<int>(0))
+GA::Genetic_algorithm::Genetic_algorithm()
 {   
 	population.resize(population_num, std::vector<int> (g_graph->num_vertices));
 }
@@ -19,7 +19,7 @@ void GA::Genetic_algorithm::search()
 	// time is given in seconds
 	
 	auto start {std::chrono::high_resolution_clock::now()};
-	constexpr int time_limit {120};
+	constexpr int time_limit {1};//120
 	
 	init_population();
 	
@@ -32,16 +32,27 @@ void GA::Genetic_algorithm::search()
 		auto stop     {std::chrono::high_resolution_clock::now()};
 		auto duration {std::chrono::duration_cast<std::chrono::seconds>(stop - start)};
 
+		static int instance_num {1};
+		
 		std::system("clear");
-		std::cerr << "Instance:  " << instance_name << "\n"
+		std::cerr << "Instance:  " << instance_name << " [" << instance_num << "/16]\n"
 				  << "XG:        " << instance_xg   << "\n"
 				  << "Conflicts: " << conflict_qnt  << "\n"
 				  << "Colors:    " << min_color     << "\n"
 				  << "Time:      " << duration.count() << "/" << time_limit << " secs\n";
 		
-		if (duration >= std::chrono::seconds(time_limit) /*|| min_color == instance_xg*/)
+		if (duration >= std::chrono::seconds(time_limit) || min_color == instance_xg)
 		{
-			// TODO: save results
+			std::ofstream result_file ("../instance_results.txt", std::ios::app);
+			
+			result_file << "Instance:  " << instance_name << " [" << instance_num << "/16]\n"
+						<< "XG:        " << instance_xg   << "\n"
+						<< "Conflicts: " << conflict_qnt  << "\n"
+						<< "Colors:    " << min_color     << "\n"
+						<< "Time:      " << duration.count() << "/" << time_limit << " secs\n\n";
+
+			result_file.close();
+			++instance_num;
 			break;
 		}
 	}

@@ -1,7 +1,7 @@
 #include "../header/graph.h"
 #include <sstream>
 
-GP::Graph::Graph() : adj_list(0, std::vector<int>(0))
+GP::Graph::Graph()
 {
 }
 

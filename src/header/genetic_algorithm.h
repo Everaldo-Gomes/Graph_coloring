@@ -7,6 +7,7 @@
 #include <chrono>
 #include <climits>
 #include <numeric>
+#include <fstream>
 #include <stdlib.h>
 #include <iostream>
 #include <algorithm>
@@ -34,7 +35,7 @@ namespace GA
 		int conflict_qnt   {INT_MAX};
 		int generation_num {0};
 		const int population_num {100};
-		std::vector<std::vector<int>> population;
+		std::vector<std::vector<int>> population {0};
 		
 	
 	public:

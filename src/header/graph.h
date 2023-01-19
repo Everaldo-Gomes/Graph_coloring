@@ -24,7 +24,7 @@ namespace GP
 		void build_adj_list(std::string graph_instance_path);
 
 	    int num_vertices {0};
-		std::vector<std::vector<int>> adj_list;
+		std::vector<std::vector<int>> adj_list {0};
 
 		const std::vector<std::tuple<std::string, int>> graph_instances
 		{

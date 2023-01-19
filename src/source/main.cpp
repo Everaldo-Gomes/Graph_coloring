@@ -13,7 +13,8 @@ int main ()
 	// used to prevent the random number from being the same every time the program is run
 	// using the return value of time as seed
 	srand(time(0));
-	
+	remove ("../instance_results.txt");
+
 	g_graph = std::make_unique<GP::Graph>();
 	GA::Genetic_algorithm ga;
 
@@ -28,7 +29,6 @@ int main ()
 
 			ga.instance_name = std::get<0>(t);
 			ga.instance_xg   = std::get<1>(t);
-			
 			ga.search();		
 		}
 	}
