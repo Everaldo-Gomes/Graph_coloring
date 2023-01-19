@@ -28,7 +28,7 @@ endif
 # Rules
 # =================================================
 
-all: clean source run
+all: clean source
 
 
 source: ${source_path}/*.cpp
@@ -40,9 +40,6 @@ source: ${source_path}/*.cpp
 	@clear
 
 run:
-	$(info ******************* Running *********************)
-	$(info *************************************************)
-
 	@${exe_command} ${path_bin}/exe
 
 clean:
