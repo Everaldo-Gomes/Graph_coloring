@@ -67,7 +67,7 @@ void GA::Genetic_algorithm::init_population()
 {
 	// summary
 	// for each cromossome (possible solution), generate random values from 1 to max quantity of vertices
-	
+
 	for (int i = 0; i < population_num; ++i)
 	{
 		for (int j = 1; j < g_graph->num_vertices; ++j)
