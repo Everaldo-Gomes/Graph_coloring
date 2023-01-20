@@ -4,9 +4,11 @@
 // Every operation that has -1. is because the list is not using the first position
 // therefore it has an additional position that is not being used
 
+//#define DEBUG
 
-GA::Genetic_algorithm::Genetic_algorithm() : population(population_num, std::vector< int>(g_graph->num_vertices))
+GA::Genetic_algorithm::Genetic_algorithm() : population(0, std::vector< int>(0))
 {
+	population.resize(population_num, std::vector< int>(g_graph->num_vertices));
 }
 
 
@@ -18,58 +20,43 @@ void GA::Genetic_algorithm::search()
 	// time is given in seconds
 	
 	auto start {std::chrono::high_resolution_clock::now()};
-	constexpr int time_limit {1};//120
-	instance_name.erase(0,22);
-	
+	constexpr int time_limit {1};//360
 	init_population();
 	
 	while (true) 
 	{
 		auto evaluated_population = objective_function();
-		
-		for (size_t i = 0; i < evaluated_population.size(); i++)
-		{
-			int k, c;
-			std::vector<int> v;
-		
-			auto t = evaluated_population[i];
+		auto selected_population  = selection(evaluated_population);
+		//crossover(selected_population);
+		//decrease_color_qnt();
 
-			std::tie(k, c, v) = t;
-			std::cout << k << " " << c << " -> ";
-		
-			for (size_t i = 1; i < v.size(); i++)
-				std::cout << v[i] << " " ;
-
-			std::cout << "\n";
-		}
-		
-		// 	auto selected_population  = selection(evaluated_population);
-		// 	crossover(selected_population);
-		break;
+		//break; //delete !!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		auto stop     {std::chrono::high_resolution_clock::now()};
 		auto duration {std::chrono::duration_cast<std::chrono::seconds>(stop - start)};
-
-		static int instance_num {1};
 		
 		std::system("clear");
-		std::cerr << "Instance:  " << instance_name << " [" << instance_num << "/16]\n"
-				  << "XG:        " << instance_xg   << "\n"
-				  << "Conflicts: " << conflict_qnt  << "\n"
-				  << "Colors:    " << min_color     << "\n"
-				  << "Time:      " << duration.count() << "/" << time_limit << " secs\n";
+		std::cerr << "Instance:  " << g_graph->instance_name      << "\t"
+				  << "N: ["        << g_graph->instance_count     << "/" << g_graph->instance_qnt     << "]  " 
+				  << "R: ["        << g_graph->instance_run_count << "/" << g_graph->max_instance_run << "]\n"
+				  << "XG:        " << g_graph->instance_xg        << "\n\n"
+				  << "Conflicts: " << best_conflict_qnt << "\n"
+				  << "Colors:    " << min_color         << "\n"
+				  << "Time:      " << duration.count()  << "/" << time_limit << " secs\n\n";
 		
-		if (duration >= std::chrono::seconds(time_limit) || min_color == instance_xg)
+		if (duration >= std::chrono::seconds(time_limit) || min_color == g_graph->instance_xg)
 		{
 			std::ofstream result_file ("../instance_results.txt", std::ios::app);
 			
-			result_file << "Instance:  " << instance_name << " [" << instance_num << "/16]\n"
-						<< "XG:        " << instance_xg   << "\n"
-						<< "Conflicts: " << conflict_qnt  << "\n"
-						<< "Colors:    " << min_color     << "\n"
-						<< "Time:      " << duration.count() << "/" << time_limit << " secs\n\n";
+			result_file << "Instance:  " << g_graph->instance_name      << "\t"
+				  		<< "N: ["        << g_graph->instance_count     << "/" << g_graph->instance_qnt     << "]  " 
+				  		<< "R: ["        << g_graph->instance_run_count << "/" << g_graph->max_instance_run << "]\n"
+				  		<< "XG:        " << g_graph->instance_xg        << "\n\n"
+				  		<< "Conflicts: " << best_conflict_qnt << "\n"
+				  		<< "Colors:    " << min_color         << "\n"
+				  		<< "Time:      " << duration.count()  << "/" << time_limit << " secs\n"
+						<< "_________________________________________________________\n\n";
 
 			result_file.close();
-			++instance_num;
 			break;
 		}
 	}
@@ -80,10 +67,10 @@ void GA::Genetic_algorithm::init_population()
 {
 	// summary
 	// for each cromossome (possible solution), generate random values from 1 to max quantity of vertices
-
+	
 	for (int i = 0; i < population_num; ++i)
 	{
-		for (int j = 1; j <= g_graph->num_vertices; ++j)
+		for (int j = 1; j < g_graph->num_vertices; ++j)
 			population[i][j] = rand() % (g_graph->num_vertices - 1) + 1;
 	}
 }
@@ -127,38 +114,76 @@ std::vector<std::tuple<int, int, std::vector<int>>> GA::Genetic_algorithm::objec
 	}
 
 	sort(evaluated_population.begin(), evaluated_population.end());
+
+
+	#ifdef DEBUG
+	std::cerr << "evaluated\n";
+		for (size_t i = 0; i < evaluated_population.size(); i++)
+		{
+			int k, c;
+			std::vector<int> v;
+		
+			auto t = evaluated_population[i];
+
+			std::tie(k, c, v) = t;
+			std::cout << k << " " << c << " -> ";
+		
+			for (size_t i = 1; i < v.size(); i++)
+				std::cout << v[i] << " " ;
+
+			std::cout << "\n";
+		}
+		std::cout << "\n";
+
+		#endif 
+
+
 	return evaluated_population;
 }
 
-/*
+
 std::vector<std::vector<int>>
-GA::Genetic_algorithm::selection(const std::vector<std::tuple<int, int, std::vector<int>>> &evaluated_population)
+GA::Genetic_algorithm::selection(const std::vector<std::tuple<int, int, std::vector<int>>>& evaluated_population)
 {
 	// summary
-	// Get the population which only have the conflict value equal to 0
+	// Get the population which only have the smallest conflict and color value
 
-	std::vector<std::vector<int>> selected_population (population_num, std::vector<int> (graph.num_vertices + 1, 1));
+	std::vector<std::vector<int>> selected_population (population_num, std::vector<int> (g_graph->num_vertices, 1));
 	
-	for (int i = 0; i < evaluated_population.size(); i++)
+	for (size_t i = 0; i < evaluated_population.size(); ++i)
 	{
 		const auto t = evaluated_population[i];
-		const  conflict_num = std::get<1>(t);
-		const std::vector<int> vec = std::get<2>(t);
+		const auto color_qnt     = std::get<0>(t);
+		const auto conflict_qnt_ = std::get<1>(t);
+		const auto vec           = std::get<2>(t);
 
-		if (min_color > std::get<0>(t) && conflict_num == 0)
+		if (min_color > color_qnt && conflict_qnt_ < best_conflict_qnt)
 		{
-			min_color = std::get<0>(t);
-			conflict_qnt = conflict_num;
+			min_color = color_qnt;
+			best_conflict_qnt = conflict_qnt_;
 		}
 			
-		if (conflict_num <= 10)
+		if (conflict_qnt_ <= min_color && conflict_qnt_ <= 10)
 			selected_population[i] = vec;
 	}
+
+	#ifdef DEBUG
+	std::cerr << "selected\n";
+
+	for (size_t i = 0; i < selected_population.size(); ++i)
+	{
+		for (size_t j = 1; j < selected_population[i].size(); ++j)
+			std:: cout << selected_population[i][j] << " ";
+		std::cout << "\n";
+	}
+
+	std::cerr << "\n\n";
+	#endif
 
 	return selected_population;
 }
 
-
+/*
 void GA::Genetic_algorithm::crossover(std::vector<std::vector<int>>& selected_population)
 {
 	// summary

@@ -21,7 +21,7 @@ namespace GP
 	public:
 		
 		Graph();
-		void build_adj_list(std::string graph_instance_path);
+		void build_adj_list(const std::string& graph_instance_path);
 
 	    int num_vertices {0};
 		std::vector<std::vector<int>> adj_list;
@@ -45,6 +45,13 @@ namespace GP
 			{instances_path + "queen7_7.col",    7},
 			{instances_path + "queen8_8.col",    9}
 		};
+
+		std::string instance_name  {};
+		int instance_xg            {0};
+		int instance_count         {0};
+		int instance_run_count     {0};
+		const int instance_qnt     {16};
+		const int max_instance_run {10};
 	};
 }
 

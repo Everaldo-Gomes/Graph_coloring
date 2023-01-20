@@ -6,15 +6,15 @@ GP::Graph::Graph() : adj_list(0, std::vector<int>(0))
 }
 
 
-void GP::Graph::build_adj_list(std::string graph_instance_path)
+void GP::Graph::build_adj_list(const std::string& graph_instance_path)
 {
 	// summary
 	// read the DIMACS instances file in order to fill the adjacency list
 	
-	std::ifstream graph_instance (graph_instance_path);
+	std::ifstream graph_instance_file (graph_instance_path);
 	std::string line;
 
-	while (getline(graph_instance, line))
+	while (getline(graph_instance_file, line))
 	{
 		// getting values to set the adjacency list
 		if (line[0] == 'p')
@@ -52,5 +52,5 @@ void GP::Graph::build_adj_list(std::string graph_instance_path)
 		} 
 	}
 
-	graph_instance.close();
+	graph_instance_file.close();
 }
