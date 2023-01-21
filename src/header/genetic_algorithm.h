@@ -25,7 +25,7 @@ namespace GA
 		void init_population();
 		void decrease_colors(std::vector<int>& parent);
 		void mutation(std::vector<int>& offspring) const;
-		void crossover(std::vector<std::vector<int>>& selected_population);
+		void crossover_A(const std::vector<std::vector<int>>& selected_population);
 		std::vector<std::tuple<int, int, std::vector<int>>> objective_function() const;
 		
 		std::vector<std::vector<int>>
@@ -42,5 +42,7 @@ namespace GA
 
 		Genetic_algorithm();
 		void search();
+
+		const int generation_to_mutate {200};
 	};	
 }
