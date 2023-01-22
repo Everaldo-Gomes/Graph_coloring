@@ -9,9 +9,6 @@ std::unique_ptr<GP::Graph> g_graph;
 
 int main ()
 {
-	// used to prevent the random number from being the same every time the program is run
-	// using the return value of time as seed
-	srand(time(0));
 	remove ("../instance_results.txt");
 	
 	g_graph = std::make_unique<GP::Graph>();
