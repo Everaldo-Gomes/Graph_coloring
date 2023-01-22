@@ -20,16 +20,39 @@ void GA::Genetic_algorithm::search()
 	
 	auto start {std::chrono::high_resolution_clock::now()};
 	constexpr int time_limit {1};//360
+
 	init_population();
-	
+
 	while (true) 
 	{
 		auto evaluated_population = objective_function();
 		auto selected_population  = selection(evaluated_population);
 		//crossover_A(selected_population);
+		crossover_B(selected_population);
+
+		generation_num++;
+		
+		if (generation_num == generation_to_mutate)
+		{
+			// selecting an offspring to be mutated
+			//const int v = rand() % (g_graph->num_vertices - 1) + 1;
+			
+			//if (v % 2 == 0)
+			//	mutation(offspring_1);
+			//else
+			//	mutation(offspring_2);
+			
+			generation_num = 0;
+			//decrease_colors(selected_population[parent_index]);
+			//decrease_colors(selected_population[parent_index+1]);
+		}
+
 		//decrease_color_qnt();
 
-		break; //delete !!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	
+break; //delete !!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
 		auto stop     {std::chrono::high_resolution_clock::now()};
 		auto duration {std::chrono::duration_cast<std::chrono::seconds>(stop - start)};
 		
@@ -125,9 +148,15 @@ GA::Genetic_algorithm::selection(const std::vector<std::tuple<int, int, std::vec
 	// summary
 	// Get the first half of the population which have the smallest color quantity
 	
-	std::vector<std::vector<int>> selected_population ((population_num / 2), std::vector<int> (g_graph->num_vertices, 1));
+	int half_population {population_num / 2};
 	
-	for (int i = 0; i < (population_num / 2); ++i)
+	// in the seection func this vector will be incremented by 2, therefore this must be odd becuase this starts from position 0
+	if (half_population % 2 == 0)
+		++half_population;
+	
+	std::vector<std::vector<int>> selected_population (half_population, std::vector<int> (g_graph->num_vertices, 1));
+	
+	for (int i = 0; i < half_population; ++i)
 	{
 		const auto t = evaluated_population[i];
 		const auto color_qnt    = std::get<0>(t);
@@ -147,19 +176,19 @@ GA::Genetic_algorithm::selection(const std::vector<std::tuple<int, int, std::vec
 }
 
 
-#ifdef eve
 void GA::Genetic_algorithm::crossover_A(const std::vector<std::vector<int>>& selected_population)
 {
 	// summary
 	// each pair of parents will generate two offsprings and perform mutation in one of them
 	// the 1st half of the child A will receive a random gene from parente A
 	// the 2nd half of the child A will receive a random gene from parente B
+
 	const int selected_population_size = selected_population[0].size() - 1;
 	const int first_half  {selected_population_size / 2};
 	const int second_half {selected_population_size};
 	
 	// save the offsprings from this positions
-	//int offspring_pos = population.size() / 2;
+	int offspring_pos = population_num / 2;
 	
 	//if (selected_population[0].size() - 1 != 0)
 	// 	second_half = selected_population_size - first_half;
@@ -174,15 +203,16 @@ void GA::Genetic_algorithm::crossover_A(const std::vector<std::vector<int>>& sel
 		// first half offspring 1 
 		for (int h1 = 0; h1 <= first_half; ++h1)
 		{
-			gene_index = (int) rand() % (g_graph->num_vertices - 1) + 1;
+			gene_index = rand() % (g_graph->num_vertices - 1) + 1;
 			gene = selected_population[parent_index][gene_index];
 			offspring_1.push_back(gene);
 		}
 
 		// second half offspring 1
+	
 		for (int h2 = first_half + 1; h2 < second_half; ++h2)
 		{
-			gene_index = (int) rand() % (g_graph->num_vertices - 1) + 1;
+			gene_index = rand() % (g_graph->num_vertices - 1) + 1;
 			gene = selected_population[parent_index + 1][gene_index];
 			offspring_1.push_back(gene);
 		}
@@ -190,7 +220,7 @@ void GA::Genetic_algorithm::crossover_A(const std::vector<std::vector<int>>& sel
 		// first half offspring 2
 		for (int h1 = 0; h1 <= first_half; ++h1)
 		{
-			gene_index = (int) rand() % (g_graph->num_vertices - 1) + 1;
+			gene_index = rand() % (g_graph->num_vertices - 1) + 1;
 			gene = selected_population[parent_index][gene_index];
 			offspring_2.push_back(gene);
 		}
@@ -198,39 +228,27 @@ void GA::Genetic_algorithm::crossover_A(const std::vector<std::vector<int>>& sel
 		// second half offspring 2 
 		for (int h2 = first_half + 1; h2 < second_half; ++h2)
 		{
-			gene_index = (int) rand() % (g_graph->num_vertices - 1) + 1;
+			gene_index = rand() % (g_graph->num_vertices - 1) + 1;
 			gene = selected_population[parent_index + 1][gene_index];
 			offspring_2.push_back(gene);
 		}
 		
-std::cerr << first_half << " " << second_half << "\n";
-		// mutate
-		if (generation_num == generation_to_mutate)
-		{
-
-			// selecting an offspring to be mutated
-//			const int v = (int) rand() % (g_graph->num_vertices - 1) + 1;
-			
-			//if (v % 2 == 0)
-			//	mutation(offspring_1);
-			//else
-			//	mutation(offspring_2);
-			
-			generation_num = 0;
-			//decrease_colors(selected_population[parent_index]);
-			//decrease_colors(selected_population[parent_index+1]);
-		}
-		
 		// put the offsprings in the original population from the second half to N (which is the worst population starts)
-		//population[offspring_pos]     = offspring_1;
-		//population[offspring_pos + 1] = offspring_2;
+		population[offspring_pos]     = offspring_1;
+		population[offspring_pos + 1] = offspring_2;
 
-		//offspring_pos += 2;
+		offspring_pos += 2;
 	}
-
-	generation_num++;
 }
-#endif
+
+
+void GA::Genetic_algorithm::crossover_B(const std::vector<std::vector<int>>& selected_population)
+{
+	// summary
+	// each pair of parents will generate two offsprings and perform mutation in one of them
+	//
+	//
+}
 
 /*
 void GA::Genetic_algorithm::mutation(std::vector<int>& offspring) const
