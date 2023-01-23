@@ -8,6 +8,8 @@ GA::Genetic_algorithm::Genetic_algorithm() : population(0, std::vector<int>(0))
 {
 	// time_counter++;
 	population.resize(population_num, std::vector<int>(g_graph->num_vertices));
+	// time_counter++;
+	population.resize(population_num, std::vector<int>(g_graph->num_vertices));
 }
 
 
