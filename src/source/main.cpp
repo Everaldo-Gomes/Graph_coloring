@@ -16,9 +16,8 @@ int main ()
 	for (int inst = 0; inst < g_graph->instance_qnt; ++inst)
 	{
 		++g_graph->instance_count;
-		g_graph->instance_run_count = 1;
 
-		for (int j = 0; j < g_graph->max_instance_run; ++j)
+		for (int j = 1; j <= g_graph->max_instance_run; ++j)
 		{	
 			auto t { g_graph->graph_instances[inst] };
 			std::string instance_path { std::get<0>(t) };
@@ -32,6 +31,7 @@ int main ()
 
 			++g_graph->instance_run_count;
 		}
+		
 	}
 
 	return 0;
