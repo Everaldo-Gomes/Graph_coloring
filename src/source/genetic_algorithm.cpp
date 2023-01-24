@@ -27,8 +27,8 @@ void GA::Genetic_algorithm::search()
 
 	while (true)
 	{
-		auto evaluated_population = objective_function();
-		auto selected_population = selection(evaluated_population);
+		auto evaluated_population = objective_function();		
+		auto selected_population  = selection(evaluated_population);
 		crossover_A(selected_population);
 		// crossover_B(selected_population);
 
@@ -45,11 +45,6 @@ void GA::Genetic_algorithm::search()
 			const int offspring_index = rand() % population_num / 2;
 			mutation(offspring_index);
 		}
-
-		
-		// decrease_colors(selected_population[parent_index]);
-		// decrease_colors(selected_population[parent_index+1]);
-		// decrease_color_qnt();
 
 		auto stop{std::chrono::high_resolution_clock::now()};
 		auto duration{std::chrono::duration_cast<std::chrono::milliseconds>(stop - start)};
@@ -93,6 +88,8 @@ void GA::Genetic_algorithm::search()
 
 			break;
 		}
+	
+		decrease_colors_num();
 	}
 }
 
@@ -155,14 +152,15 @@ std::vector<std::tuple<int, int, std::vector<int>>> GA::Genetic_algorithm::objec
 
 
 std::vector<std::vector<int>>
-GA::Genetic_algorithm::selection(const std::vector<std::tuple<int, int, std::vector<int>>> &evaluated_population)
+GA::Genetic_algorithm::selection(const std::vector<std::tuple<int, int, std::vector<int>>>& evaluated_population)
 {
 	// summary
 	// Get the first half of the population which have the smallest color quantity
+	// NOTE: the best individuos are already sorted, from the minium to maximum color quantity
 
 	int half_population{population_num / 2};
 
-	// in the seection func this vector will be incremented by 2, therefore this must be odd becuase this starts from position 0
+	// in the seection func the vector will be incremented by 2, therefore this must be odd becuase this starts from position 0
 	if (half_population % 2 == 0)
 		++half_population;
 
@@ -170,10 +168,10 @@ GA::Genetic_algorithm::selection(const std::vector<std::tuple<int, int, std::vec
 
 	for (int i = 0; i < half_population; ++i)
 	{
-		const auto t = evaluated_population[i];
-		const auto color_qnt = std::get<0>(t);
+		const auto t            = evaluated_population[i];
+		const auto color_qnt    = std::get<0>(t);
 		const auto conflict_qnt = std::get<1>(t);
-		const auto vec = std::get<2>(t);
+		const auto vec          = std::get<2>(t);
 
 		if (min_color > color_qnt && conflict_qnt < best_conflict_qnt)
 		{
@@ -254,13 +252,16 @@ void GA::Genetic_algorithm::crossover_A(const std::vector<std::vector<int>> &sel
 }
 
 
-// void GA::Genetic_algorithm::crossover_B(const std::vector<std::vector<int>>& selected_population)
-//{
-//  summary
-//  each pair of parents will generate two offsprings and perform mutation in one of them
-//
-//
-//}
+void GA::Genetic_algorithm::crossover_B(const std::vector<std::vector<int>>& selected_population)
+{
+	// summary
+  	// each pair of parents will generate two offsprings and perform mutation in one of them
+	// divide the parents into two parts, and distribute it between the two offsprings
+
+	
+
+
+}
 
 
 void GA::Genetic_algorithm::mutation(const int &offspring_index)
@@ -279,11 +280,11 @@ void GA::Genetic_algorithm::mutation(const int &offspring_index)
 	}
 
 	// search for the minimum and maximum color quantity
-	int repeated_qnt_max_color{0},
-		repeated_qnt_min_color{INT_MAX},
-		index_num_max_color{0},
-		index_num_min_color{0},
-		index{0};
+	int repeated_qnt_max_color {0},
+		repeated_qnt_min_color {INT_MAX},
+		index_num_max_color {0},
+		index_num_min_color {0},
+		index {0};
 
 	for (auto &color : colors)
 	{
@@ -307,51 +308,15 @@ void GA::Genetic_algorithm::mutation(const int &offspring_index)
 }
 
 
-/*
-void GA::Genetic_algorithm::decrease_colors(std::vector<int>& parent)
+void GA::Genetic_algorithm::decrease_colors_num()
 {
+//!!!!!!!!!!!(if it doesn't work, save the values and its population when evaluating )
 	// summary
-	// descrease the number of colors from each pair of parents by 1
-	// picking the color the appears less and replace it for color 1
+	// descrease the number of colors from each parent
 
-	// count colors
-	std::map<int, int> qnt_colors;
-
-	for (int i = 0; i < parent.size(); i++)
+	for (int i = 0; i < (population_num / 2); ++i)
 	{
-		const int color = parent[i];
-		qnt_colors[color]++;
-	}
 
-	// search for the maximum color quantity
-	int qnt = 0, color;
 
-	for (auto x : qnt_colors)
-	{
-		if (qnt < x.second)
-		{
-			color = x.first;
-			qnt = x.second;
-		}
-	}
-
-	// coloring vertices that are not adjacency to the vertex with the same color
-	for (int current_vertex = 1; current_vertex <= graph.num_vertices; current_vertex++)
-	{
-		const int current_vertex_color = parent[current_vertex];
-
-		// searching in the adjacency list
-		// check if the color in the vertex k is the same as its adjacancy veterx in the parent
-
-		for(int k = 0; k < graph.adj_list[current_vertex].size(); k++)
-		{
-			const int parent_vertex = graph.adj_list[current_vertex][k];
-
-			// parent_vertex must be >= to the current_vertex
-			// because the colors before it were already counted
-			if (parent_vertex >= current_vertex && parent[parent_vertex] != current_vertex_color && parent[current_vertex] == color)
-				parent[current_vertex] = 1;
-		}
 	}
 }
-*/

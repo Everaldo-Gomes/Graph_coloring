@@ -22,9 +22,9 @@ namespace GA
 	
 	private:
 
+		void decrease_colors_num();
 		void init_population();
 		void mutation(const int& offspring_index);
-		void decrease_colors(std::vector<int>& parent);
 		void crossover_A(const std::vector<std::vector<int>>& selected_population);
 		void crossover_B(const std::vector<std::vector<int>>& selected_population);
 		std::vector<std::tuple<int, int, std::vector<int>>> objective_function() const;
