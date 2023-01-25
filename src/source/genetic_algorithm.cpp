@@ -30,7 +30,7 @@ void GA::Genetic_algorithm::search()
 		auto evaluated_population = objective_function();		
 		auto selected_population  = selection(evaluated_population);
 		crossover_A(selected_population);
-		// crossover_B(selected_population);
+		crossover_B(selected_population);
 
 		generation_num++;
 		static int generation_counter {0};
@@ -158,7 +158,7 @@ GA::Genetic_algorithm::selection(const std::vector<std::tuple<int, int, std::vec
 	// Get the first half of the population which have the smallest color quantity
 	// NOTE: the best individuos are already sorted, from the minium to maximum color quantity
 
-	int half_population{population_num / 2};
+	int half_population {population_num / 2};
 
 	// in the seection func the vector will be incremented by 2, therefore this must be odd becuase this starts from position 0
 	if (half_population % 2 == 0)
@@ -175,7 +175,7 @@ GA::Genetic_algorithm::selection(const std::vector<std::tuple<int, int, std::vec
 
 		if (min_color > color_qnt && conflict_qnt < best_conflict_qnt)
 		{
-			min_color = color_qnt;
+			min_color         = color_qnt;
 			best_conflict_qnt = conflict_qnt;
 		}
 
@@ -186,7 +186,7 @@ GA::Genetic_algorithm::selection(const std::vector<std::tuple<int, int, std::vec
 }
 
 
-void GA::Genetic_algorithm::crossover_A(const std::vector<std::vector<int>> &selected_population)
+void GA::Genetic_algorithm::crossover_A(const std::vector<std::vector<int>>& selected_population)
 {
 	// summary
 	// each pair of parents will generate two offsprings and perform mutation in one of them
@@ -194,14 +194,11 @@ void GA::Genetic_algorithm::crossover_A(const std::vector<std::vector<int>> &sel
 	// the 2nd half of the child A will receive a random gene from parente B
 
 	const int selected_population_size = selected_population[0].size() - 1;
-	const int first_half{selected_population_size / 2};
-	const int second_half{selected_population_size};
+	const int first_half  {selected_population_size / 2};
+	const int second_half {selected_population_size};
 
 	// save the offsprings from this positions
-	int offspring_pos = population_num / 2;
-
-	// if (selected_population[0].size() - 1 != 0)
-	//  	second_half = selected_population_size - first_half;
+	int offspring_pos {population_num / 2};
 
 	for (size_t parent_index = 0; parent_index < selected_population.size() - 1; parent_index += 2)
 	{
@@ -219,11 +216,10 @@ void GA::Genetic_algorithm::crossover_A(const std::vector<std::vector<int>> &sel
 		}
 
 		// second half offspring 1
-
 		for (int h2 = first_half + 1; h2 < second_half; ++h2)
 		{
 			gene_index = rand() % (g_graph->num_vertices - 1) + 1;
-			gene = selected_population[parent_index + 1][gene_index];
+			gene = selected_population[parent_index][gene_index];
 			offspring_1.push_back(gene);
 		}
 
@@ -231,7 +227,7 @@ void GA::Genetic_algorithm::crossover_A(const std::vector<std::vector<int>> &sel
 		for (int h1 = 0; h1 <= first_half; ++h1)
 		{
 			gene_index = rand() % (g_graph->num_vertices - 1) + 1;
-			gene = selected_population[parent_index][gene_index];
+			gene = selected_population[parent_index + 1][gene_index];
 			offspring_2.push_back(gene);
 		}
 
@@ -244,7 +240,7 @@ void GA::Genetic_algorithm::crossover_A(const std::vector<std::vector<int>> &sel
 		}
 
 		// put the offsprings in the original population from the second half to N (which is the worst population starts)
-		population[offspring_pos] = offspring_1;
+		population[offspring_pos]     = offspring_1;
 		population[offspring_pos + 1] = offspring_2;
 
 		offspring_pos += 2;
@@ -258,9 +254,95 @@ void GA::Genetic_algorithm::crossover_B(const std::vector<std::vector<int>>& sel
   	// each pair of parents will generate two offsprings and perform mutation in one of them
 	// divide the parents into two parts, and distribute it between the two offsprings
 
+	// P1A) 0000  P1B) 0000
+	// P2A) 0000  P2B) 0000
 	
+	const int selected_population_size = selected_population[0].size() - 1;
+	const int first_half  {selected_population_size / 2};
+	const int second_half {selected_population_size};
+	int offspring_pos     {population_num / 2};
+	int gene              {0};
+
+	for (size_t parent_index = 0; parent_index < selected_population.size() - 1; parent_index += 2)
+	{
+		std::vector<int> P1A, P1B,
+					 	 P2A, P2B,
+					 	 offspring_1, 
+					 	 offspring_2;
+
+		// P1A
+		for (int i = 1; i <= first_half; ++i)
+		{
+			gene = selected_population[parent_index][i];
+			P1A.push_back(gene);
+		}
+		
+		// P1B
+		for (int i = first_half + 1; i <= second_half; ++i)
+		{
+			gene = selected_population[parent_index][i];
+			P1B.push_back(gene);
+		}
+
+		// P2A
+		for (int i = 1; i <= first_half; ++i)
+		{
+			gene = selected_population[parent_index + 1][i];
+			P2A.push_back(gene);
+		}
+
+		// P2B
+		for (int i = first_half + 1; i <= second_half; ++i)
+		{
+			gene = selected_population[parent_index + 1][i];
+			P2B.push_back(gene);
+		}
 
 
+		// possibile configurations
+		// each offspring must have ONLY ONE configuration and DIFFERENT from each other
+
+		// offspring 1 configuration
+
+		// P1A + P2A
+		offspring_1 = P1A;
+		offspring_1.insert(offspring_1.end(), P2A.begin(), P2A.end());
+
+		// P1A + P2B
+		//offspring_1 = P1A;
+		//offspring_1.insert(offspring_1.end(), P2B.begin(), P2B.end());
+
+		// P1B + P2A
+		//offspring_1 = P1B;
+		//offspring_1.insert(offspring_1.end(), P2A.begin(), P2A.end());
+
+		// P1B + P2B
+		//offspring_1 = P1B;
+		//offspring_1.insert(offspring_1.end(), P2B.begin(), P2B.end());
+
+
+		// offspring 2 configuration
+		
+		// P1A + P2A
+		//offspring_2 = P1A;
+		//offspring_2.insert(offspring_2.end(), P2A.begin(), P2A.end());
+
+		// P1A + P2B
+		offspring_2 = P1A;
+		offspring_2.insert(offspring_2.end(), P2B.begin(), P2B.end());
+
+		// P1B + P2A
+		//offspring_2 = P1B;
+		//offspring_2.insert(offspring_2.end(), P2A.begin(), P2A.end());
+
+		// P1B + P2B
+		//offspring_2 = P1B;
+		//offspring_2.insert(offspring_2.end(), P2B.begin(), P2B.end());
+
+		population[offspring_pos]     = offspring_1;
+		population[offspring_pos + 1] = offspring_2;
+		offspring_pos += 2;
+	}
 }
 
 
