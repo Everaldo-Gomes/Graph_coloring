@@ -4,11 +4,9 @@
 // Every operation that has -1. is because the list is not using the first position
 // therefore it has an additional position that is not being used
 
+
 GA::Genetic_algorithm::Genetic_algorithm() : population(0, std::vector<int>(0))
 {
-	// time_counter++;
-	population.resize(population_num, std::vector<int>(g_graph->num_vertices));
-	// time_counter++;
 	population.resize(population_num, std::vector<int>(g_graph->num_vertices));
 }
 
@@ -21,7 +19,7 @@ void GA::Genetic_algorithm::search()
 	// time is given in miliseconds
 
 	auto start{std::chrono::high_resolution_clock::now()};
-	constexpr int time_limit{200}; // 360000
+	constexpr int time_limit{600000}; // 10 min
 
 	init_population();
 
@@ -89,7 +87,7 @@ void GA::Genetic_algorithm::search()
 			break;
 		}
 	
-		decrease_colors_num();
+		decrease_colors_num(evaluated_population);
 	}
 }
 
@@ -168,10 +166,10 @@ GA::Genetic_algorithm::selection(const std::vector<std::tuple<int, int, std::vec
 
 	for (int i = 0; i < half_population; ++i)
 	{
-		const auto t            = evaluated_population[i];
-		const auto color_qnt    = std::get<0>(t);
-		const auto conflict_qnt = std::get<1>(t);
-		const auto vec          = std::get<2>(t);
+		const auto t            {evaluated_population[i]};
+		const auto color_qnt    {std::get<0>(t)};
+		const auto conflict_qnt {std::get<1>(t)};
+		const auto vec          {std::get<2>(t)};
 
 		if (min_color > color_qnt && conflict_qnt < best_conflict_qnt)
 		{
@@ -299,7 +297,7 @@ void GA::Genetic_algorithm::crossover_B(const std::vector<std::vector<int>>& sel
 		}
 
 
-		// possibile configurations
+		// all possibile configurations for P1 + P2 (not P2 + P1)
 		// each offspring must have ONLY ONE configuration and DIFFERENT from each other
 
 		// offspring 1 configuration
@@ -390,15 +388,76 @@ void GA::Genetic_algorithm::mutation(const int &offspring_index)
 }
 
 
-void GA::Genetic_algorithm::decrease_colors_num()
+void GA::Genetic_algorithm::decrease_colors_num(const std::vector<std::tuple<int, int, std::vector<int>>>& evaluated_population)
 {
-//!!!!!!!!!!!(if it doesn't work, save the values and its population when evaluating )
 	// summary
-	// descrease the number of colors from each parent
+	// descrease the number of colors from each parent (i,e the first 50% of the array)
+	// replace the highest color with a new color chosen randomly if no comflict is detected
+	// if there is a conflict the new color will be highest color - 1
 
-	for (int i = 0; i < (population_num / 2); ++i)
+	const int half_population {population_num / 2};
+
+	for (int i = 0; i < half_population; ++i)
 	{
+		const auto t            {evaluated_population[i]};
+		const auto color_qnt    {std::get<0>(t)};
+		const auto conflict_qnt {std::get<1>(t)};
+		const auto vec          {std::get<2>(t)};
+
+		if (color_qnt > g_graph->instance_xg && conflict_qnt > 0)
+		{
+			// get the highest num color and save the indexes it appears
+			std::vector<int> vec_aux {vec};
+			sort(vec_aux.rbegin(), vec_aux.rend());
+
+			const int highest_color_num {vec_aux[0]};
+
+			std::vector<int> indexes;
+
+			for (size_t k = 1; k < vec.size(); ++k)
+			{
+				if (vec[k] == highest_color_num)
+					indexes.push_back(k);
+			}
 
 
+			// for all indexes, check if the new color will cause a conflict			
+			for (size_t k = 0; k < indexes.size(); ++k)
+			{
+				srand(time(0));
+				const int current_color_index  {indexes[k]};
+				int current_vertex_color       {population[i][current_color_index]};
+				int new_color                  {current_vertex_color};
+
+				while (new_color >= current_vertex_color && current_vertex_color > 1)
+					new_color = rand() % (g_graph->num_vertices - 1) + 1;
+				
+
+				// if there is a conflict set all the indexes to the highest color - 1
+				bool conflicted {false};
+
+				for (size_t k = 0; k < g_graph->adj_list[current_color_index].size(); ++k)
+				{
+					const int neighbor_vertex = g_graph->adj_list[current_color_index][k];
+					
+					if (population[i][neighbor_vertex] == new_color)
+					{
+						conflicted = true;
+						break;
+					}
+				}
+
+				if (conflicted)
+				{
+					for (const auto& index : indexes)
+						population[i][index] = (highest_color_num - 1);
+				}
+				else 
+				{
+					for (const auto& index : indexes)
+						population[i][index] = new_color;
+				}
+			}
+		}
 	}
 }

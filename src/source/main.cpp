@@ -13,7 +13,7 @@ int main ()
 	
 	g_graph = std::make_unique<GP::Graph>();
 
-	for (int inst = 0; inst < g_graph->instance_qnt; ++inst)
+	for (int inst = 1; inst < g_graph->instance_qnt; ++inst)
 	{
 		++g_graph->instance_count;
 
@@ -31,7 +31,6 @@ int main ()
 
 			++g_graph->instance_run_count;
 		}
-		
 	}
 
 	return 0;
