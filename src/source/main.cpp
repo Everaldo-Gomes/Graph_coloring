@@ -19,6 +19,8 @@ int main ()
 
 		for (int j = 1; j <= g_graph->max_instance_run; ++j)
 		{	
+			++g_graph->instance_run_count;
+
 			auto t { g_graph->graph_instances[inst] };
 			std::string instance_path { std::get<0>(t) };
 			
@@ -27,10 +29,11 @@ int main ()
 			g_graph->instance_xg   = std::get<1>(t);			
 
 			GA::Genetic_algorithm ga;
-			ga.search();
-
-			++g_graph->instance_run_count;
+			ga.search(); 
 		}
+
+		g_graph->min_color         = INT_MAX;
+		g_graph->best_conflict_qnt = INT_MAX;
 	}
 
 	return 0;
