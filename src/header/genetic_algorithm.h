@@ -32,10 +32,8 @@ namespace GA
 		selection(const std::vector<std::tuple<int, int, std::vector<int>>>& evaluated_population);
 		void decrease_colors_num(const std::vector<std::tuple<int, int, std::vector<int>>>& evaluated_population);
 
-		int min_color         {INT_MAX};
-		int best_conflict_qnt {INT_MAX};
-		int generation_num    {0};
-		const int population_num {100};
+		int generation_num {0};
+		const int population_num {250};
 		std::vector<std::vector<int>> population;
 		
 	

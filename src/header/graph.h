@@ -28,6 +28,7 @@ namespace GP
 
 		const std::vector<std::tuple<std::string, int>> graph_instances
 		{
+			// instance name and its best known XG
 			{instances_path + "0_test.col",      2},
 			{instances_path + "anna.col",       11},
 			{instances_path + "david.col",      11},
@@ -52,6 +53,8 @@ namespace GP
 		int instance_run_count     {0};
 		const int instance_qnt     {16};
 		const int max_instance_run {10};
+		int min_color              {INT_MAX};
+		int best_conflict_qnt      {INT_MAX};
 	};
 }
 
