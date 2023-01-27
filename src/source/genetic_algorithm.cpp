@@ -15,18 +15,18 @@ void GA::Genetic_algorithm::search()
 {
 	// summary
 	// call all phases in the genetic algorithm
-	// stop critiria: in seconds or reach the best known value
+	// stop critiria: in seconds or when reach the best known value
 	// time is given in miliseconds
 
 	auto start{std::chrono::high_resolution_clock::now()};
-	constexpr int time_limit{600000}; // 10 min
+	constexpr int time_limit {20000};//{600000}; // 10 min
 
 	init_population();
 
 	while (true)
 	{
-		auto evaluated_population = objective_function();		
-		auto selected_population  = selection(evaluated_population);
+		auto evaluated_population {objective_function()};		
+		auto selected_population  {selection(evaluated_population)};
 		crossover_A(selected_population);
 		crossover_B(selected_population);
 
@@ -38,7 +38,6 @@ void GA::Genetic_algorithm::search()
 			generation_counter += generation_num;
 			generation_num = 0;
 
-			// selecting an offspring to be mutated, which are located from the half of the population onwards
 			srand(time(0));
 			const int offspring_index = rand() % population_num / 2;
 			mutation(offspring_index);
@@ -52,38 +51,37 @@ void GA::Genetic_algorithm::search()
 				  << "N: ["        << g_graph->instance_count     << "/"    << g_graph->instance_qnt     << "]  "
 				  << "R: ["        << g_graph->instance_run_count << "/"    << g_graph->max_instance_run << "]\n"
 				  << "XG:        " << g_graph->instance_xg        << "\n\n"
-				  << "Conflicts: " << best_conflict_qnt           << "\n"
-				  << "Colors:    " << min_color                   << "\n"
-				  << "Time:      " << duration.count() << "/" << time_limit << " ms\n\n";
+				  << "Conflicts: " << g_graph->best_conflict_qnt  << "\n"
+				  << "Colors:    " << g_graph->min_color          << "\n"
+				  << "Time:      " << duration.count() << "/" << time_limit << "ms [" << (time_limit / 1000) / 60 << "min]\n\n";
 
 		
 		static auto time_counter{0};
 
-		if (duration >= std::chrono::milliseconds(time_limit) || min_color == g_graph->instance_xg)
+		if (duration >= std::chrono::milliseconds(time_limit) || (g_graph->min_color == g_graph->instance_xg && g_graph->best_conflict_qnt == 0))
 		{
 			time_counter += duration.count();
 			break;
 		}
 
 		// save to a file only after all the executions
-		if (g_graph->instance_run_count == g_graph->max_instance_run)
+		if (g_graph->instance_run_count > g_graph->max_instance_run)
 		{
 			std::ofstream result_file("../instance_results.txt", std::ios::app);
 
-			result_file << "Instance.............. " << g_graph->instance_name                     << "\n"
-						<< "XG.................... " << g_graph->instance_xg                       << "\n\n"
-						<< "Conflicts............. " << best_conflict_qnt                          << "\n"
-						<< "Colors................ " << min_color                                  << "\n"
-						<< "AVG time.............. " << time_counter   / g_graph->max_instance_run << "/ms\n"
-						<< "AVG generation num.... " << generation_num / g_graph->max_instance_run << "\n"
-						<< "_________________________________________\n\n";
+			result_file << "Instance.............. " << g_graph->instance_name                         << "\n"
+						<< "XG.................... " << g_graph->instance_xg                           << "\n\n"
+						<< "Conflicts............. " << g_graph->best_conflict_qnt                     << "\n"
+						<< "Colors................ " << g_graph->min_color                             << "\n"
+						<< "AVG time.............. " << time_counter   / g_graph->max_instance_run     << "/ms\n"
+						<< "AVG generation num.... " << generation_counter / g_graph->max_instance_run << "\n"
+						<< "____________________________________\n\n";
 
 			result_file.close();
 			
 			g_graph->instance_run_count = 0;
 			generation_counter = 0;
 			time_counter = 0;
-
 			break;
 		}
 	
@@ -98,11 +96,13 @@ void GA::Genetic_algorithm::init_population()
 	// for each cromossome (possible solution), generate random values from 1 to max quantity of vertices
 
 	srand(time(0));
-
+	std::vector<int> vec (g_graph->num_vertices);
+	std::iota(vec.begin(), vec.end(), 1);
 	for (int i = 0; i < population_num; ++i)
 	{
-		for (int j = 1; j < g_graph->num_vertices; ++j)
-			population[i][j] = rand() % (g_graph->num_vertices - 1) + 1;
+		//for (int j = 1; j < g_graph->num_vertices; ++j)
+		//	population[i][j] = rand() % (g_graph->num_vertices - 1) + 1;
+		population[i] = vec;
 	}
 }
 
@@ -171,10 +171,12 @@ GA::Genetic_algorithm::selection(const std::vector<std::tuple<int, int, std::vec
 		const auto conflict_qnt {std::get<1>(t)};
 		const auto vec          {std::get<2>(t)};
 
-		if (min_color > color_qnt && conflict_qnt < best_conflict_qnt)
+		if (g_graph->min_color         >= color_qnt            && 
+			g_graph->min_color         >= g_graph->instance_xg && 
+			g_graph->best_conflict_qnt >= conflict_qnt)
 		{
-			min_color         = color_qnt;
-			best_conflict_qnt = conflict_qnt;
+			g_graph->min_color         = color_qnt;
+			g_graph->best_conflict_qnt = conflict_qnt;
 		}
 
 		selected_population[i] = vec;
@@ -254,7 +256,7 @@ void GA::Genetic_algorithm::crossover_B(const std::vector<std::vector<int>>& sel
 
 	// P1A) 0000  P1B) 0000
 	// P2A) 0000  P2B) 0000
-	
+
 	const int selected_population_size = selected_population[0].size() - 1;
 	const int first_half  {selected_population_size / 2};
 	const int second_half {selected_population_size};
@@ -401,19 +403,17 @@ void GA::Genetic_algorithm::decrease_colors_num(const std::vector<std::tuple<int
 	{
 		const auto t            {evaluated_population[i]};
 		const auto color_qnt    {std::get<0>(t)};
-		const auto conflict_qnt {std::get<1>(t)};
 		const auto vec          {std::get<2>(t)};
 
-		if (color_qnt > g_graph->instance_xg && conflict_qnt > 0)
+		if (color_qnt > g_graph->instance_xg && vec.size() > 0) //&& conflict_qnt > 0 
 		{
 			// get the highest num color and save the indexes it appears
-			std::vector<int> vec_aux {vec};
+			std::vector<int> indexes, vec_aux {vec};
+
 			sort(vec_aux.rbegin(), vec_aux.rend());
 
-			const int highest_color_num {vec_aux[0]};
-
-			std::vector<int> indexes;
-
+			const int highest_color_num = vec_aux[0];
+			
 			for (size_t k = 1; k < vec.size(); ++k)
 			{
 				if (vec[k] == highest_color_num)
@@ -448,15 +448,10 @@ void GA::Genetic_algorithm::decrease_colors_num(const std::vector<std::tuple<int
 				}
 
 				if (conflicted)
-				{
-					for (const auto& index : indexes)
-						population[i][index] = (highest_color_num - 1);
-				}
-				else 
-				{
-					for (const auto& index : indexes)
-						population[i][index] = new_color;
-				}
+					new_color = highest_color_num - 1;
+				
+				for (const auto& index : indexes)
+					population[i][index] = new_color;
 			}
 		}
 	}
