@@ -1,15 +1,15 @@
 # =================================================
-# variables
+# Variables
 # =================================================
 
 path_bin        = ./bin
 source_path     = ./src/source
 graph_path      = ./src/graph_instances
-compile_flags   = g++ -g -ggdb -Wall -Weffc++ -Wextra -Werror -o2 -std=c++20 
+compile_flags   = g++ -g -ggdb -Wall -Weffc++ -Wextra -Werror -o2 -std=c++2a 
 
 
 # =================================================
-# execution parameters
+# Execution parameters
 # =================================================
 
 # valgrind
@@ -25,7 +25,7 @@ endif
 
 
 # =================================================
-# Rules
+# Target
 # =================================================
 
 all: clean source
