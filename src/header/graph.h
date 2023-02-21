@@ -5,9 +5,10 @@
 #include <vector>
 #include <stdio.h>
 #include <fstream>
-#include <iostream>
-#include <string.h>
+#include <climits>
 #include <sstream>
+#include <string.h>
+#include <iostream>
 
 namespace GP
 {
