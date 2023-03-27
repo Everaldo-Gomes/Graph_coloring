@@ -29,7 +29,6 @@ void GA::Genetic_algorithm::search()
 		auto selected_population  {selection(evaluated_population)};
 		crossover_A(selected_population);
 		crossover_B(selected_population);
-			mutation_B(1);	
 
 		++generation_num;
 		static int generation_counter {0};
@@ -346,7 +345,6 @@ void GA::Genetic_algorithm::mutation_A(const int &offspring_index)
 	// change only one genes
 	// pick the color that repeats more and replace it with the one that has less occurrences
 
-	// count colors
 	std::map<int, int> colors;
 
 	for (int i = 1; i < g_graph->num_vertices; ++i)
@@ -355,7 +353,6 @@ void GA::Genetic_algorithm::mutation_A(const int &offspring_index)
 		colors[color_num]++;
 	}
 
-	// search for the minimum and maximum color quantity
 	int repeated_qnt_max_color {0},
 		repeated_qnt_min_color {INT_MAX},
 		index_num_max_color {0},

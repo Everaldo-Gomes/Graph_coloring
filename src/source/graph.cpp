@@ -1,5 +1,5 @@
-#include "../header/graph.h"
 #include <sstream>
+#include "../header/graph.h"
 
 GP::Graph::Graph() : adj_list(0, std::vector<int>(0))
 {
