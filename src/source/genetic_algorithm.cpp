@@ -58,6 +58,7 @@ void GA::Genetic_algorithm::search()
 		std::cerr << "Instance:  " << g_graph->instance_name      << "\t"
 				  << "N: ["        << g_graph->instance_count     << "/"    << g_graph->instance_qnt - 1 << "]  "
 				  << "XG: "        << g_graph->instance_xg        << "\n\n"
+				  << "Exe config " << g_execution_param->current_config << "/" << MAX_CONFIG_NUM << "\n" 
 				  << "Conflicts: " << g_graph->best_conflict_qnt  << "\n"
 				  << "Colors:    " << g_graph->min_color          << "\n"
 				  << "Time:      " << duration.count() << "/" << time_limit << "\n\n";
@@ -75,6 +76,7 @@ void GA::Genetic_algorithm::search()
 						<< "Conflicts............. " << g_graph->best_conflict_qnt  << "\n"
 						<< "Colors................ " << g_graph->min_color          << "\n"
 						<< "Time.................. " << duration.count()            << "/"   << time_limit << "\n"
+						<< "Execution config...... " << g_execution_param->current_config    << "\n" 
 						<< "________________________________________________________\n\n";
 
 			result_file.close();

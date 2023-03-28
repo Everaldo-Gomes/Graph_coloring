@@ -1,6 +1,7 @@
 #pragma once
 
-#define MAX_CONFIG_NUM 7
+#define MAX_TIME_LIMIT 1//1800000 // ms
+#define MAX_CONFIG_NUM 6
 #define CROSSOVER_A 0
 #define CROSSOVER_B 1
 #define MUTATION_A 0

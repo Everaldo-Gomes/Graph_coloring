@@ -15,30 +15,39 @@ int main ()
 	
 	g_graph = std::make_unique<GP::Graph>();
 
-	for (int inst = 1; inst < g_graph->instance_qnt; ++inst)
+	for (int config = 0; config < MAX_CONFIG_NUM; ++config)
 	{
-		++g_graph->instance_count;
+		g_execution_param->current_config = config;
+		g_graph->instance_count = 0;
 
-		for (int j = 1; j <= g_graph->max_instance_run; ++j)
+		for (int inst = 1; inst < g_graph->instance_qnt; ++inst)
 		{
-			++g_graph->instance_run_count;
+			++g_graph->instance_count;
 
-			auto t { g_graph->graph_instances[inst] };
-			std::string instance_path { std::get<0>(t) };
+			for (int j = 1; j <= g_graph->max_instance_run; ++j)
+			{
+				++g_graph->instance_run_count;
 
-			g_graph->build_adj_list(instance_path);
-			g_graph->instance_name = instance_path.erase(0,22);
-			g_graph->instance_xg   = std::get<1>(t);			
+				auto t { g_graph->graph_instances[inst] };
+				std::string instance_path { std::get<0>(t) };
 
-			GA::Genetic_algorithm ga;
-			ga.search(); 
+				g_graph->build_adj_list(instance_path);
+				g_graph->instance_name = instance_path.erase(0,22);
+				g_graph->instance_xg   = std::get<1>(t);			
+
+				GA::Genetic_algorithm ga;
+				ga.search(); 
+			}
+
+			g_graph->min_color         = INT_MAX;
+			g_graph->best_conflict_qnt = INT_MAX;		
+
+			//++g_execution_param->current_config;
 		}
 
-		g_graph->min_color         = INT_MAX;
-		g_graph->best_conflict_qnt = INT_MAX;		
-
-		if (g_execution_param->current_config < MAX_CONFIG_NUM - 1)
-			++g_execution_param->current_config;
+		std::ofstream result_file("../instance_results.txt", std::ios::app);
+		result_file << "================================================\n";
+		result_file.close();
 	}
 
 	return 0;
