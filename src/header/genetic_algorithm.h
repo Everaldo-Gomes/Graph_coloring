@@ -42,7 +42,5 @@ namespace GA
 
 			Genetic_algorithm();
 			void search();
-
-			const int generation_to_mutate {200};
 	};
 }

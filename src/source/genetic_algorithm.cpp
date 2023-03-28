@@ -7,7 +7,7 @@
 
 GA::Genetic_algorithm::Genetic_algorithm() : population(0, std::vector<int>(0))
 {
-	population_num = g_execution_param[0].population_num;
+	population_num = g_execution_param[g_execution_param->current_config].population_num;
 	population.resize(population_num, std::vector<int>(g_graph->num_vertices));
 }
 
@@ -16,11 +16,11 @@ void GA::Genetic_algorithm::search()
 {
 	// summary
 	// call all phases in the genetic algorithm
-	// stop critiria: in seconds or when reach the best known value
-	// time is given in miliseconds
+	// stop critiria: in miliseconds or when reach the best known value
+	// save result to a file
 
 	auto start{std::chrono::high_resolution_clock::now()};
-	constexpr int time_limit {1000};//{600000}; // 10 min
+	const int time_limit {g_execution_param[g_execution_param->current_config].execution_time_ms};
 
 	init_population();
 
@@ -28,13 +28,16 @@ void GA::Genetic_algorithm::search()
 	{
 		auto evaluated_population {objective_function()};		
 		auto selected_population  {selection(evaluated_population)};
-		crossover_A(selected_population);
-		crossover_B(selected_population);
+
+		if (g_execution_param[g_execution_param->current_config].crossover == CROSSOVER_A)
+			crossover_A(selected_population);
+		else
+			crossover_B(selected_population);
 
 		++generation_num;
 		static int generation_counter {0};
 
-		if (generation_num == generation_to_mutate)
+		if (generation_num == g_execution_param[g_execution_param->current_config].generation_to_mutate)
 		{
 			generation_counter += generation_num;
 			generation_num = 0;
@@ -42,8 +45,10 @@ void GA::Genetic_algorithm::search()
 			srand(time(0));
 			const int offspring_index = rand() % population_num / 2;
 
-			mutation_A(offspring_index);
-			mutation_B(offspring_index);	
+			if (g_execution_param[g_execution_param->current_config].mutation == MUTATION_A)
+				mutation_A(offspring_index);
+			else
+				mutation_B(offspring_index);	
 		}
 
 		auto stop {std::chrono::high_resolution_clock::now()};
@@ -63,7 +68,6 @@ void GA::Genetic_algorithm::search()
 		{
 			time_counter += duration.count();
 			
-			// save results to a file
 			std::ofstream result_file("../instance_results.txt", std::ios::app);
 
 			result_file << "Instance.............. " << g_graph->instance_name      << "\n"

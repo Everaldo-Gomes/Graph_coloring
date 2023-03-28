@@ -36,6 +36,8 @@ int main ()
 
 		g_graph->min_color         = INT_MAX;
 		g_graph->best_conflict_qnt = INT_MAX;		
+
+		++g_execution_param->current_config;
 	}
 
 	return 0;
