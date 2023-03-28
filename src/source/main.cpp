@@ -1,11 +1,13 @@
 #include <time.h>
 #include <iostream>
 
+#include "../header/config.h"
 #include "../header/graph.h"
 #include "../header/genetic_algorithm.h"
 
-
 std::unique_ptr<GP::Graph> g_graph;
+Config::Execution_param g_execution_param[MAX_CONFIG_NUM];
+
 
 int main ()
 {
