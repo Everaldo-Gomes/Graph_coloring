@@ -7,7 +7,7 @@
 
 GA::Genetic_algorithm::Genetic_algorithm() : population(0, std::vector<int>(0))
 {
-	population_num = g_execution_param[g_execution_param->current_config].population_num;
+	population_num = g_execution_param[g_execution_param->current_config].population_num + 1;
 	population.resize(population_num, std::vector<int>(g_graph->num_vertices));
 }
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#define MAX_CONFIG_NUM 6
+#define MAX_CONFIG_NUM 7
 #define CROSSOVER_A 0
 #define CROSSOVER_B 1
 #define MUTATION_A 0
