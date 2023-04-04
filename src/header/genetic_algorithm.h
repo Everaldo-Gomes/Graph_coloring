@@ -26,12 +26,12 @@ namespace GA
 			void mutation_B(const int &offspring_index);
 			void crossover_A(const std::vector<std::vector<int>> &selected_population);
 			void crossover_B(const std::vector<std::vector<int>> &selected_population);
-			std::vector<std::tuple<int, int, std::vector<int>>> objective_function();
+			std::vector<std::tuple<int, std::vector<int>>> objective_function();
 
 			std::vector<std::vector<int>>
-			selection(const std::vector<std::tuple<int, int, std::vector<int>>> &evaluated_population);
+			selection(const std::vector<std::tuple<int, std::vector<int>>> &evaluated_population);
 
-			void decrease_colors_num(const std::vector<std::tuple<int, int, std::vector<int>>> &evaluated_population);
+			void decrease_colors_num(const std::vector<std::tuple<int, std::vector<int>>> &evaluated_population);
 			void resolve_conflicts(std::vector<int> &chromosome, const int &current_vertex);
 			bool verify_conflict(const std::vector<int> &chromosome, const int &current_vertex, const int &current_vertex_color) const;
 

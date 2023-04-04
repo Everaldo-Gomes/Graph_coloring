@@ -59,13 +59,12 @@ void GA::Genetic_algorithm::search()
 				  << "N: ["        << g_graph->instance_count     << "/"    << g_graph->instance_qnt - 1 << "]  "
 				  << "XG: "        << g_graph->instance_xg        << "\n\n"
 				  << "Exe config " << g_execution_param->current_config << "/" << MAX_CONFIG_NUM << "\n" 
-				  << "Conflicts: " << g_graph->best_conflict_qnt  << "\n"
 				  << "Colors:    " << g_graph->min_color          << "\n"
 				  << "Time:      " << duration.count() << "/" << time_limit << "\n\n";
 
 		static auto time_counter {0};
 
-		if (duration >= std::chrono::milliseconds(time_limit) || (g_graph->min_color == g_graph->instance_xg && g_graph->best_conflict_qnt == 0))
+		if (duration >= std::chrono::milliseconds(time_limit) || (g_graph->min_color == g_graph->instance_xg))
 		{
 			time_counter += duration.count();
 			
@@ -73,7 +72,6 @@ void GA::Genetic_algorithm::search()
 
 			result_file << "Instance.............. " << g_graph->instance_name      << "\n"
 						<< "XG.................... " << g_graph->instance_xg        << "\n\n"
-						<< "Conflicts............. " << g_graph->best_conflict_qnt  << "\n"
 						<< "Colors................ " << g_graph->min_color          << "\n"
 						<< "Time.................. " << duration.count()            << "/"   << time_limit << "\n"
 						<< "Execution config...... " << g_execution_param->current_config    << "\n" 
@@ -107,19 +105,18 @@ void GA::Genetic_algorithm::init_population()
 }
 
 
-std::vector<std::tuple<int, int, std::vector<int>>> GA::Genetic_algorithm::objective_function()
+std::vector<std::tuple<int, std::vector<int>>> GA::Genetic_algorithm::objective_function()
 {
 	// summary
 	// check if adjacencies vertecies have the same color
 	// count the quantity of colors in each possible solution and the quantity of conflicts (if any)
 	// return the same population with its quantity of conflicts and colors
 
-	std::vector<std::tuple<int, int, std::vector<int>>> evaluated_population(population_num);
+	std::vector<std::tuple<int, std::vector<int>>> evaluated_population(population_num);
 
 	for (int i = 0; i < population_num; ++i)
 	{
 		std::set<int> color_qnt;
-		int conflict_count{0};
 
 		for (int current_vertex = 1; current_vertex < g_graph->num_vertices; ++current_vertex)
 		{
@@ -132,7 +129,7 @@ std::vector<std::tuple<int, int, std::vector<int>>> GA::Genetic_algorithm::objec
 				resolve_conflicts(population[i], current_vertex);
 		}
 
-		evaluated_population[i] = std::make_tuple(color_qnt.size(), conflict_count, population[i]);
+		evaluated_population[i] = std::make_tuple(color_qnt.size(), population[i]);
 	}
 
 	sort(evaluated_population.begin(), evaluated_population.end());
@@ -141,7 +138,7 @@ std::vector<std::tuple<int, int, std::vector<int>>> GA::Genetic_algorithm::objec
 
 
 std::vector<std::vector<int>>
-GA::Genetic_algorithm::selection(const std::vector<std::tuple<int, int, std::vector<int>>> &evaluated_population)
+GA::Genetic_algorithm::selection(const std::vector<std::tuple<int, std::vector<int>>> &evaluated_population)
 {
 	// summary
 	// Get the first half of the population which have the smallest color quantity
@@ -157,19 +154,13 @@ GA::Genetic_algorithm::selection(const std::vector<std::tuple<int, int, std::vec
 
 	for (int i = 0; i < half_population; ++i)
 	{
-		const auto t            {evaluated_population[i]};
-		const auto color_qnt    {std::get<0>(t)};
-		const auto conflict_qnt {std::get<1>(t)};
-		const auto vec          {std::get<2>(t)};
+		const auto t         {evaluated_population[i]};
+		const auto color_qnt {std::get<0>(t)};
+		const auto vec       {std::get<1>(t)};
 
-		if (g_graph->min_color         >= color_qnt            && 
-			g_graph->min_color         >= g_graph->instance_xg && 
-			g_graph->best_conflict_qnt >= conflict_qnt)
-		{
-			g_graph->min_color         = color_qnt;
-			g_graph->best_conflict_qnt = conflict_qnt;
-		}
-
+		if (g_graph->min_color >= color_qnt && g_graph->min_color >= g_graph->instance_xg)
+			g_graph->min_color  = color_qnt;
+			
 		selected_population[i] = vec;
 	}
 
@@ -389,7 +380,7 @@ void GA::Genetic_algorithm::mutation_B(const int &offspring_index)
 }
 
 
-void GA::Genetic_algorithm::decrease_colors_num(const std::vector<std::tuple<int, int, std::vector<int>>> &evaluated_population)
+void GA::Genetic_algorithm::decrease_colors_num(const std::vector<std::tuple<int, std::vector<int>>> &evaluated_population)
 {
 	// summary
 	// descrease the number of colors from each parent (i,e the first 50% of the array)
@@ -402,7 +393,7 @@ void GA::Genetic_algorithm::decrease_colors_num(const std::vector<std::tuple<int
 	{
 		const auto t         {evaluated_population[i]};
 		const auto color_qnt {std::get<0>(t)};
-		const auto vec       {std::get<2>(t)};
+		const auto vec       {std::get<1>(t)};
 
 		if (color_qnt > g_graph->instance_xg && vec.size() > 0)
 		{
@@ -460,7 +451,6 @@ void GA::Genetic_algorithm::decrease_colors_num(const std::vector<std::tuple<int
 bool GA::Genetic_algorithm::verify_conflict(const std::vector<int> &chromosome, const int &current_vertex, const int &current_vertex_color) const
 {	
 	// summary
-	// searching in the adjacency list
 	// check if the color in the vertex k is the same as its adjacancy veterx in the population
 	// if so, there is a conflict
 	
@@ -468,7 +458,7 @@ bool GA::Genetic_algorithm::verify_conflict(const std::vector<int> &chromosome, 
 	{
 		const int neighbor_vertex = g_graph->adj_list[current_vertex][k];
 
-		if (chromosome[neighbor_vertex] == current_vertex_color)
+		if (chromosome[neighbor_vertex] == current_vertex_color && current_vertex != neighbor_vertex)
 			return true;
 	}	
 
@@ -479,9 +469,9 @@ bool GA::Genetic_algorithm::verify_conflict(const std::vector<int> &chromosome, 
 void GA::Genetic_algorithm::resolve_conflicts(std::vector<int> &chromosome, const int &current_vertex)
 {
 	// summary
-	// if there is a conflict between the current and the neighbor verticies, change the color of the current vertex
+	// if there is a conflict between the current and the neighbor vertices, change the color of the current vertex
 
-	int color {0};
+	int color {chromosome[current_vertex]};
 	bool conflict_exists {false};
 
 	do 
@@ -491,5 +481,4 @@ void GA::Genetic_algorithm::resolve_conflicts(std::vector<int> &chromosome, cons
 		conflict_exists = verify_conflict(chromosome, current_vertex, color);
 
 	} while (conflict_exists);
-	
 }

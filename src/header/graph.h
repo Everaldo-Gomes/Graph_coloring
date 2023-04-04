@@ -54,7 +54,6 @@ namespace GP
 			const int instance_qnt     {16};
 			const int max_instance_run {10};
 			int min_color              {INT_MAX};
-			int best_conflict_qnt      {INT_MAX};
 	};
 }
 
