@@ -39,8 +39,7 @@ int main ()
 				ga.search(); 
 			}
 
-			g_graph->min_color         = INT_MAX;
-			g_graph->best_conflict_qnt = INT_MAX;		
+			g_graph->min_color = INT_MAX;
 		}
 
 		std::ofstream result_file("../instance_results.txt", std::ios::app);
