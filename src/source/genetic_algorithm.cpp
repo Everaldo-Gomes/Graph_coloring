@@ -38,7 +38,7 @@ void GA::Genetic_algorithm::search()
 		std::cerr << "Instance:  " << g_graph->instance_name      << "\t"
 				  << "N: ["        << g_graph->instance_count     << "/"    << g_graph->instance_qnt - 1 << "]  "
 				  << "XG: "        << g_graph->instance_xg        << "\n\n"
-				  << "Exe config " << g_execution_param->current_config << "/" << MAX_CONFIG_NUM << "\n" 
+				  << "Exe config " << g_execution_param->current_config << "/" << MAX_CONFIG_NUM -1<< "\n" 
 				  << "Colors:    " << g_graph->min_color          << "\n"
 				  << "Time:      " << duration.count() << "/" << time_limit << "\n\n";
 
@@ -170,6 +170,7 @@ void GA::Genetic_algorithm::crossover_A(const std::vector<std::vector<int>> &sel
 	// save the offsprings from this positions
 	int offspring_pos {population_num / 2};
 
+	#pragma omp parallel for
 	for (size_t parent_index = 0; parent_index < selected_population.size() - 1; parent_index += 2)
 	{
 		srand(time(0));
@@ -488,7 +489,7 @@ void GA::Genetic_algorithm::resolve_conflicts(std::vector<int> &chromosome, cons
 	// summary
 	// if there is a conflict between the current and the neighbor vertices, change the color of the current vertex
 
-	int color {chromosome[current_vertex]};
+	int color {0};
 	bool conflict_exists {false};
 
 	do 
