@@ -3,6 +3,7 @@
 #include <map>
 #include <set>
 #include <tuple>
+#include <omp.h>
 #include <vector>
 #include <chrono>
 #include <climits>

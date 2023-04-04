@@ -5,7 +5,7 @@
 path_bin        = ./bin
 source_path     = ./src/source
 graph_path      = ./src/graph_instances
-compile_flags   = g++ -g -ggdb -Wall -Weffc++ -Wextra -Werror -o2 -std=c++2a 
+compile_flags   = g++ -g -ggdb -Wall -Weffc++ -Wextra -Werror -o2 -std=c++2a -fopenmp
 
 
 # =================================================
