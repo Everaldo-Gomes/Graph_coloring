@@ -269,47 +269,144 @@ void GA::Genetic_algorithm::crossover_B(const std::vector<std::vector<int>> &sel
 			P2B.push_back(gene);
 		}
 
-
-		// all possibile configurations for P1 + P2 (not P2 + P1)
-		// each offspring must have ONLY ONE configuration and DIFFERENT from each other
+		// all possibile configurations for P1 + P2 and P2 + P1
 
 		// offspring 1 configuration
+		srand(time(0));
+		const int config_offspring_1 {rand() % 7};
 
-		// P1A + P2A
-		offspring_1 = P1A;
-		offspring_1.insert(offspring_1.end(), P2A.begin(), P2A.end());
+		switch(config_offspring_1)
+		{
+			case 0:
+			{
+				// P1A + P2A
+				offspring_1 = P1A;
+				offspring_1.insert(offspring_1.end(), P2A.begin(), P2A.end());
+				break;
+			}
+			case 1:
+			{
+				// P1A + P2B
+				offspring_1 = P1A;
+				offspring_1.insert(offspring_1.end(), P2B.begin(), P2B.end());
+				break;
+			}
+			case 2:
+			{
+				// P1B + P2A
+				offspring_1 = P1B;
+				offspring_1.insert(offspring_1.end(), P2A.begin(), P2A.end());
+				break;
+			}
+			case 3:
+			{
+				// P1B + P2B
+				offspring_1 = P1B;
+				offspring_1.insert(offspring_1.end(), P2B.begin(), P2B.end());
+				break;
+			}
+			case 4:
+			{
+				// P2A + P1A
+				offspring_1 = P2A;
+				offspring_1.insert(offspring_1.end(), P1A.begin(), P1A.end());
+				break;
+			}
+			case 5:
+			{
+				// P2A + P1B
+				offspring_1 = P2A;
+				offspring_1.insert(offspring_1.end(), P1B.begin(), P1B.end());
+				break;
+			}
+			case 6:
+			{
+				// P2B + P1A
+				offspring_1 = P2B;
+				offspring_1.insert(offspring_1.end(), P1A.begin(), P1A.end());
+				break;
+			}
+			case 7:
+			{
+				// P2B + P1B
+				offspring_1 = P2B;
+				offspring_1.insert(offspring_1.end(), P1B.begin(), P1B.end());
+				break;
+			}
+		}
 
-		// P1A + P2B
-		//offspring_1 = P1A;
-		//offspring_1.insert(offspring_1.end(), P2B.begin(), P2B.end());
-
-		// P1B + P2A
-		//offspring_1 = P1B;
-		//offspring_1.insert(offspring_1.end(), P2A.begin(), P2A.end());
-
-		// P1B + P2B
-		//offspring_1 = P1B;
-		//offspring_1.insert(offspring_1.end(), P2B.begin(), P2B.end());
-
-
-		// offspring 2 configuration
 		
-		// P1A + P2A
-		//offspring_2 = P1A;
-		//offspring_2.insert(offspring_2.end(), P2A.begin(), P2A.end());
+		// offspring 2 configuration
+		int config_offspring_2{0};
 
-		// P1A + P2B
-		offspring_2 = P1A;
-		offspring_2.insert(offspring_2.end(), P2B.begin(), P2B.end());
+		// configuration between the two offspring cannot be iqual or will generate the same offspring
+		do
+		{
+			srand(time(0));
+			config_offspring_2 = rand() % 7;
 
-		// P1B + P2A
-		//offspring_2 = P1B;
-		//offspring_2.insert(offspring_2.end(), P2A.begin(), P2A.end());
+		} while (config_offspring_1 == config_offspring_2);
 
-		// P1B + P2B
-		//offspring_2 = P1B;
-		//offspring_2.insert(offspring_2.end(), P2B.begin(), P2B.end());
-
+		switch(config_offspring_2)
+		{
+			case 0:
+			{
+				// P1A + P2A
+				offspring_2 = P1A;
+				offspring_2.insert(offspring_2.end(), P2A.begin(), P2A.end());
+				break;
+			}
+			case 1:
+			{
+				// P1A + P2B
+				offspring_2 = P1A;
+				offspring_2.insert(offspring_2.end(), P2B.begin(), P2B.end());
+				break;
+			}
+			case 2:
+			{
+				// P1B + P2A
+				offspring_2 = P1B;
+				offspring_2.insert(offspring_2.end(), P2A.begin(), P2A.end());
+				break;
+			}
+			case 3:
+			{
+				// P1B + P2B
+				offspring_2 = P1B;
+				offspring_2.insert(offspring_2.end(), P2B.begin(), P2B.end());
+				break;
+			}
+			case 4:
+			{
+				// P2A + P1A
+				offspring_2 = P2A;
+				offspring_2.insert(offspring_2.end(), P1A.begin(), P1A.end());
+				break;
+			}
+			case 5:
+			{
+				// P2A + P1B
+				offspring_2 = P2A;
+				offspring_2.insert(offspring_2.end(), P1B.begin(), P1B.end());
+				break;
+			}
+			case 6:
+			{
+				// P2B + P1A
+				offspring_2 = P2B;
+				offspring_2.insert(offspring_2.end(), P1A.begin(), P1A.end());
+				break;
+			}
+			case 7:
+			{
+				// P2B + P1B
+				offspring_2 = P2B;
+				offspring_2.insert(offspring_1.end(), P1B.begin(), P1B.end());
+				break;
+			}
+		}
+		
 		population[offspring_pos]     = offspring_1;
 		population[offspring_pos + 1] = offspring_2;
 		offspring_pos += 2;
@@ -345,6 +442,7 @@ void GA::Genetic_algorithm::mutate()
 		}
 	}
 }
+
 
 void GA::Genetic_algorithm::mutation_A(const int &offspring_index)
 {
