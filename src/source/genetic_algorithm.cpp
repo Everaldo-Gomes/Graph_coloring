@@ -107,7 +107,7 @@ void GA::Genetic_algorithm::init_population()
 }
 
 
-std::vector<std::tuple<int, int, std::vector<int>>> GA::Genetic_algorithm::objective_function() const
+std::vector<std::tuple<int, int, std::vector<int>>> GA::Genetic_algorithm::objective_function()
 {
 	// summary
 	// check if adjacencies vertecies have the same color
@@ -126,19 +126,10 @@ std::vector<std::tuple<int, int, std::vector<int>>> GA::Genetic_algorithm::objec
 			const int current_vertex_color = population[i][current_vertex];
 			color_qnt.insert(current_vertex_color);
 
-			// searching in the adjacency list
-			// check if the color in the vertex k is the same as its adjacancy veterx in the population
-			// if so, there is a conflict
+			const bool conflict_exists {verify_conflict(population[i], current_vertex, current_vertex_color)};
 
-			for (size_t k = 0; k < g_graph->adj_list[current_vertex].size(); ++k)
-			{
-				const int neighbor_vertex = g_graph->adj_list[current_vertex][k];
-
-				// population_vertex must be >= than the current_vertex
-				// because the colors before it were already counted
-				if (neighbor_vertex >= current_vertex && population[i][neighbor_vertex] == current_vertex_color)
-					++conflict_count;
-			}
+			if (conflict_exists)
+				resolve_conflicts(population[i], current_vertex);
 		}
 
 		evaluated_population[i] = std::make_tuple(color_qnt.size(), conflict_count, population[i]);
@@ -413,7 +404,7 @@ void GA::Genetic_algorithm::decrease_colors_num(const std::vector<std::tuple<int
 		const auto color_qnt {std::get<0>(t)};
 		const auto vec       {std::get<2>(t)};
 
-		if (color_qnt > g_graph->instance_xg && vec.size() > 0) //&& conflict_qnt > 0 
+		if (color_qnt > g_graph->instance_xg && vec.size() > 0)
 		{
 			// get the highest num color and save the indexes it appears
 			std::vector<int> indexes, vec_aux {vec};
@@ -463,4 +454,42 @@ void GA::Genetic_algorithm::decrease_colors_num(const std::vector<std::tuple<int
 			}
 		}
 	}
+}
+
+
+bool GA::Genetic_algorithm::verify_conflict(const std::vector<int> &chromosome, const int &current_vertex, const int &current_vertex_color) const
+{	
+	// summary
+	// searching in the adjacency list
+	// check if the color in the vertex k is the same as its adjacancy veterx in the population
+	// if so, there is a conflict
+	
+	for (size_t k = 0; k < g_graph->adj_list[current_vertex].size(); ++k)
+	{
+		const int neighbor_vertex = g_graph->adj_list[current_vertex][k];
+
+		if (chromosome[neighbor_vertex] == current_vertex_color)
+			return true;
+	}	
+
+	return false;
+}
+
+
+void GA::Genetic_algorithm::resolve_conflicts(std::vector<int> &chromosome, const int &current_vertex)
+{
+	// summary
+	// if there is a conflict between the current and the neighbor verticies, change the color of the current vertex
+
+	int color {0};
+	bool conflict_exists {false};
+
+	do 
+	{
+		++color;
+		chromosome[current_vertex] = color;
+		conflict_exists = verify_conflict(chromosome, current_vertex, color);
+
+	} while (conflict_exists);
+	
 }

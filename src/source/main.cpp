@@ -20,7 +20,7 @@ int main ()
 		g_execution_param->current_config = config;
 		g_graph->instance_count = 0;
 
-		for (int inst = 1; inst < g_graph->instance_qnt; ++inst)
+		for (int inst = 0; inst < g_graph->instance_qnt; ++inst)
 		{
 			++g_graph->instance_count;
 
@@ -41,8 +41,6 @@ int main ()
 
 			g_graph->min_color         = INT_MAX;
 			g_graph->best_conflict_qnt = INT_MAX;		
-
-			//++g_execution_param->current_config;
 		}
 
 		std::ofstream result_file("../instance_results.txt", std::ios::app);
