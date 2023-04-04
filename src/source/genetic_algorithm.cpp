@@ -28,28 +28,8 @@ void GA::Genetic_algorithm::search()
 	{
 		auto evaluated_population {objective_function()};		
 		auto selected_population  {selection(evaluated_population)};
-
-		if (g_execution_param[g_execution_param->current_config].crossover == CROSSOVER_A)
-			crossover_A(selected_population);
-		else
-			crossover_B(selected_population);
-
-		++generation_num;
-		static int generation_counter {0};
-
-		if (generation_num == g_execution_param[g_execution_param->current_config].generation_to_mutate)
-		{
-			generation_counter += generation_num;
-			generation_num = 0;
-
-			srand(time(0));
-			const int offspring_index = rand() % population_num / 2;
-
-			if (g_execution_param[g_execution_param->current_config].mutation == MUTATION_A)
-				mutation_A(offspring_index);
-			else
-				mutation_B(offspring_index);	
-		}
+		crossover(selected_population);
+		mutate();
 
 		auto stop {std::chrono::high_resolution_clock::now()};
 		auto duration {std::chrono::duration_cast<std::chrono::milliseconds>(stop - start)};
@@ -80,7 +60,6 @@ void GA::Genetic_algorithm::search()
 			result_file.close();
 
 			g_graph->instance_run_count = 0;
-			generation_counter = 0;
 			time_counter = 0;
 			break;
 		}
@@ -165,6 +144,15 @@ GA::Genetic_algorithm::selection(const std::vector<std::tuple<int, std::vector<i
 	}
 
 	return selected_population;
+}
+
+
+void GA::Genetic_algorithm::crossover(const std::vector<std::vector<int>> &selected_population)
+{
+	if (g_execution_param[g_execution_param->current_config].crossover == CROSSOVER_A)
+		crossover_A(selected_population);
+	else
+		crossover_B(selected_population);
 }
 
 
@@ -327,6 +315,35 @@ void GA::Genetic_algorithm::crossover_B(const std::vector<std::vector<int>> &sel
 	}
 }
 
+
+void GA::Genetic_algorithm::mutate()
+{
+	int num_offsprint_to_muate
+	{
+		static_cast<int>(population_num * g_execution_param[g_execution_param->current_config].mutate_rate)
+	};
+	
+	const int offspring_start_at {population_num / 2};
+	std::vector<int> mutated_offspring;
+	std::vector<int>::iterator itr;
+
+	while (--num_offsprint_to_muate)
+	{
+		srand(time(0));
+		const int offspring_index {rand() % (population_num - offspring_start_at)  + offspring_start_at};
+
+		itr = find(mutated_offspring.begin(), mutated_offspring.end(), offspring_index);
+
+		if (itr == mutated_offspring.end())
+		{
+			mutated_offspring.push_back(offspring_index);
+			if (g_execution_param[g_execution_param->current_config].mutation == MUTATION_A)
+				mutation_A(offspring_index);
+			else
+				mutation_B(offspring_index);	
+		}
+	}
+}
 
 void GA::Genetic_algorithm::mutation_A(const int &offspring_index)
 {
