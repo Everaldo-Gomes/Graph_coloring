@@ -35,27 +35,28 @@ void GA::Genetic_algorithm::search()
 		auto duration {std::chrono::duration_cast<std::chrono::milliseconds>(stop - start)};
 
 		std::system("clear");
-		std::cerr << "Instance:  " << g_graph->instance_name      << "\t"
-				  << "N: ["        << g_graph->instance_count     << "/"    << g_graph->instance_qnt - 1 << "]  "
-				  << "XG: "        << g_graph->instance_xg        << "\n\n"
-				  << "Exe config " << g_execution_param->current_config << "/" << MAX_CONFIG_NUM -1<< "\n" 
-				  << "Colors:    " << g_graph->min_color          << "\n"
+		std::cerr << "Instance:  " << g_graph->instance_name            << "\t"
+				  << "N: ["        << g_graph->instance_count           << "/"    << g_graph->graph_instances.size() - 1 << "]  "
+				  << "XG: "        << g_graph->instance_xg              << "\n\n"
+				  << "Exe config " << g_execution_param->current_config << "/"    << MAX_CONFIG_NUM -1 << "\t[" << g_graph->current_repetition << "/" << g_graph->max_instance_run << "]\n" 
+				  << "Colors:    " << g_graph->min_color                << "\n"
 				  << "Time:      " << duration.count() << "/" << time_limit << "\n\n";
 
 		static auto time_counter {0};
 
 		if (duration >= std::chrono::milliseconds(time_limit) || (g_graph->min_color == g_graph->instance_xg))
 		{
+			g_graph->colors.push_back(g_graph->min_color);
+
 			time_counter += duration.count();
 			
 			std::ofstream result_file("../instance_results.txt", std::ios::app);
 
-			result_file << "Instance.............. " << g_graph->instance_name      << "\n"
-						<< "XG.................... " << g_graph->instance_xg        << "\n\n"
-						<< "Colors................ " << g_graph->min_color          << "\n"
-						<< "Time.................. " << duration.count()            << "/"   << time_limit << "\n"
-						<< "Execution config...... " << g_execution_param->current_config    << "\n" 
-						<< "________________________________________________________\n\n";
+			result_file << g_graph->min_color;
+			result_file.width(10);
+			result_file << duration.count();
+			result_file.width(10);
+			result_file << g_execution_param->current_config << "\n";
 
 			result_file.close();
 
@@ -337,15 +338,9 @@ void GA::Genetic_algorithm::crossover_B(const std::vector<std::vector<int>> &sel
 
 		
 		// offspring 2 configuration
-		int config_offspring_2{0};
-
-		// configuration between the two offspring cannot be iqual or will generate the same offspring
-		do
-		{
-			srand(time(0));
-			config_offspring_2 = rand() % 7;
-
-		} while (config_offspring_1 == config_offspring_2);
+		
+		srand(time(0)+1);
+		const int config_offspring_2{rand() % 7};
 
 		switch(config_offspring_2)
 		{
@@ -435,6 +430,7 @@ void GA::Genetic_algorithm::mutate()
 		if (itr == mutated_offspring.end())
 		{
 			mutated_offspring.push_back(offspring_index);
+			
 			if (g_execution_param[g_execution_param->current_config].mutation == MUTATION_A)
 				mutation_A(offspring_index);
 			else
