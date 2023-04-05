@@ -3,6 +3,7 @@
 #include <tuple>
 #include <memory>
 #include <vector>
+#include <math.h>
 #include <stdio.h>
 #include <fstream>
 #include <climits>
@@ -25,6 +26,9 @@ namespace GP
 
 		    int num_vertices {0};
 			std::vector<std::vector<int>> adj_list;
+
+			void save_colors_avg_and_standard_deviation();
+			void insert_header();
 
 			const std::vector<std::tuple<std::string, int>> graph_instances
 			{
@@ -51,9 +55,11 @@ namespace GP
 			int instance_xg            {0};
 			int instance_count         {0};
 			int instance_run_count     {0};
-			const int instance_qnt     {16};
 			const int max_instance_run {10};
 			int min_color              {INT_MAX};
+			int current_repetition     {0};
+
+			std::vector<int> colors{0};
 	};
 }
 

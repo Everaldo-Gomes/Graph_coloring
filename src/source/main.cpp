@@ -20,31 +20,38 @@ int main ()
 		g_execution_param->current_config = config;
 		g_graph->instance_count = 0;
 
-		for (int inst = 0; inst < g_graph->instance_qnt; ++inst)
-		{
+		for (unsigned int inst = 1; inst < g_graph->graph_instances.size(); ++inst)
+		{	
 			++g_graph->instance_count;
+			g_graph->current_repetition = 0;
+			
+			bool set_header {true};
 
 			for (int j = 1; j <= g_graph->max_instance_run; ++j)
 			{
 				++g_graph->instance_run_count;
+				++g_graph->current_repetition;
 
-				auto t { g_graph->graph_instances[inst] };
-				std::string instance_path { std::get<0>(t) };
+				auto t {g_graph->graph_instances[inst]};
+				std::string instance_path {std::get<0>(t)};
 
 				g_graph->build_adj_list(instance_path);
 				g_graph->instance_name = instance_path.erase(0,22);
 				g_graph->instance_xg   = std::get<1>(t);			
+				
+				if (set_header) 
+				{
+					g_graph->insert_header();
+					set_header = false;
+				}
 
 				GA::Genetic_algorithm ga;
 				ga.search(); 
 			}
 
 			g_graph->min_color = INT_MAX;
+			g_graph->save_colors_avg_and_standard_deviation();
 		}
-
-		std::ofstream result_file("../instance_results.txt", std::ios::app);
-		result_file << "================================================\n";
-		result_file.close();
 	}
 
 	return 0;
