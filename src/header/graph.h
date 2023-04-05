@@ -59,7 +59,7 @@ namespace GP
 			int min_color              {INT_MAX};
 			int current_repetition     {0};
 
-			std::vector<int> colors{0};
+			std::vector<int> colors;
 	};
 }
 

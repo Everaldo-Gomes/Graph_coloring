@@ -1,7 +1,7 @@
 #include <sstream>
 #include "../header/graph.h"
 
-GP::Graph::Graph() : adj_list(0, std::vector<int>(0))
+GP::Graph::Graph() : adj_list(0, std::vector<int>(0)), colors(0)
 {
 }
 
@@ -82,12 +82,12 @@ void GP::Graph::save_colors_avg_and_standard_deviation()
 	for (const auto &x : g_graph->colors)
 		sum += x;
 
-	avg = sum / g_graph->colors.size() -1;
+	avg = sum / g_graph->colors.size();
 
 	for (const auto &x : g_graph->colors)
 		sd += pow(x - avg, 2);
 
-	sd = sqrt(sd / g_graph->colors.size() -1);
+	sd = sqrt(sd / g_graph->colors.size());
 
 	g_graph->colors.clear();
 
