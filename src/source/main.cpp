@@ -47,9 +47,10 @@ int main ()
 
 				GA::Genetic_algorithm ga;
 				ga.search(); 
+				
+				g_graph->min_color = INT_MAX;
 			}
 
-			g_graph->min_color = INT_MAX;
 			g_graph->save_colors_avg_and_standard_deviation();
 		}
 	}

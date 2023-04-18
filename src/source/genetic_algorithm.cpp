@@ -138,8 +138,8 @@ GA::Genetic_algorithm::selection(const std::vector<std::tuple<int, std::vector<i
 		const auto color_qnt {std::get<0>(t)};
 		const auto vec       {std::get<1>(t)};
 
-		if (g_graph->min_color >= color_qnt && g_graph->min_color >= g_graph->instance_xg)
-			g_graph->min_color  = color_qnt;
+		if (g_graph->min_color > color_qnt && color_qnt >= g_graph->instance_xg)
+			g_graph->min_color = color_qnt;
 			
 		selected_population[i] = vec;
 	}
