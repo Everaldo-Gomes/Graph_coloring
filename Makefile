@@ -40,7 +40,7 @@ source: ${source_path}/*.cpp
 	@clear
 
 run:
-	@${exe_command} ${path_bin}/exe
+	@${exe_command} ${path_bin}/exe ${config}
 
 clean:
 	@clear

@@ -112,7 +112,7 @@ std::vector<std::tuple<int, std::vector<int>>> GA::Genetic_algorithm::objective_
 		evaluated_population[i] = std::make_tuple(color_qnt.size(), population[i]);
 	}
 
-	sort(evaluated_population.begin(), evaluated_population.end());
+	//sort(evaluated_population.begin(), evaluated_population.end());
 	return evaluated_population;
 }
 
