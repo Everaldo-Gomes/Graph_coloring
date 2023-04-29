@@ -1,5 +1,71 @@
 #include "../header/config.h"
 
+Config::System::System(const std::string &config_num) : _config_num(config_num)
+{
+}
+
+
+char* Config::System::remove_file() const
+{
+	char* file = (char*) malloc(sizeof(_file_name));
+    
+	strcpy(file, _file_name.c_str());
+	return file;
+}
+
+
+void Config::System::insert_header()
+{
+	std::ofstream result_file(_file_name, std::ios::app);
+
+	result_file << "Instance: " << g_graph->instance_name            << "\n"
+	     		<< "XG:       " << g_graph->instance_xg              << "\n"
+				<< "Config:   " << g_execution_param->current_config << "\n\n";
+
+	result_file << "Colors";
+	result_file.width(20);
+	result_file << "time(ms)\n\n";
+    result_file.close();  
+}
+
+
+void Config::System::save_colors_avg_and_standard_deviation()
+{
+	double avg_color {0.0};
+	double sd_color  {0.0};
+    double avg_time  {0.0};
+
+	for (const auto &x : g_graph->colors)
+		avg_color += x;
+
+	avg_color /= g_graph->colors.size();
+
+	for (const auto &x : g_graph->colors)
+		sd_color += pow(x - avg_color, 2);
+
+	sd_color = sqrt(sd_color / g_graph->colors.size());
+
+    for (const auto &t : g_graph->times)
+        avg_time += t;
+
+    avg_time /= g_graph->times.size();
+    avg_time /= 1000; // ms -> s
+
+	g_graph->colors.clear();
+    g_graph->times.clear();
+
+	std::ofstream result_file(_file_name, std::ios::app);
+
+	result_file << "\n"
+				<< "Average_colors:      " << avg_color << "\n"
+				<< "Standard deviation:  " << sd_color  << "\n"
+                << "Average_time(s):     " << avg_time  << "\n"
+				<< "------------------------------\n\n";
+
+	result_file.close();
+}
+
+
 Config::Execution_param::Execution_param()
 {
     g_execution_param[0].population_num    = 200;

@@ -1,7 +1,7 @@
 #include <sstream>
 #include "../header/graph.h"
 
-GP::Graph::Graph() : adj_list(0, std::vector<int>(0)), colors(0)
+GP::Graph::Graph() : adj_list(0, std::vector<int>(0)), colors(0), times(0)
 {
 }
 
@@ -53,50 +53,4 @@ void GP::Graph::build_adj_list(const std::string& graph_instance_path)
 	}
 
 	graph_instance_file.close();
-}
-
-
-void GP::Graph::insert_header()
-{
-	std::ofstream result_file("../instance_results.txt", std::ios::app);
-
-	result_file << "Instance: " << g_graph->instance_name << "\n"
-	     		<< "XG:       " << g_graph->instance_xg   << "\n\n";
-
-	result_file << "Colors";
-	result_file.width(10);
-	result_file << "time(ms)";
-	result_file.width(10);
-	result_file << "config\n\n";
-
-    result_file.close();  
-}
-
-
-void GP::Graph::save_colors_avg_and_standard_deviation()
-{
-	double avg {0.0};
- 	double sum {0.0};
-	double sd  {0.0};
-
-	for (const auto &x : g_graph->colors)
-		sum += x;
-
-	avg = sum / g_graph->colors.size();
-
-	for (const auto &x : g_graph->colors)
-		sd += pow(x - avg, 2);
-
-	sd = sqrt(sd / g_graph->colors.size());
-
-	g_graph->colors.clear();
-
-	std::ofstream result_file("../instance_results.txt", std::ios::app);
-
-	result_file << "\n"
-				<< "Average_colors:      " << avg << "\n"
-				<< "Standard deviation:  " << sd  << "\n"
-				<< "------------------------------\n\n";
-
-	result_file.close();
 }

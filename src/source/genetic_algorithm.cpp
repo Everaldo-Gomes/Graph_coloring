@@ -42,26 +42,19 @@ void GA::Genetic_algorithm::search()
 				  << "Colors:    " << g_graph->min_color                << "\n"
 				  << "Time:      " << duration.count() << "/" << time_limit << "\n\n";
 
-		static auto time_counter {0};
-
 		if (duration >= std::chrono::milliseconds(time_limit) || (g_graph->min_color == g_graph->instance_xg))
 		{
 			g_graph->colors.push_back(g_graph->min_color);
-
-			time_counter += duration.count();
+			g_graph->times.push_back(duration.count());
 			
-			std::ofstream result_file("../instance_results.txt", std::ios::app);
+			std::ofstream result_file(g_sys->_file_name, std::ios::app);
 
 			result_file << g_graph->min_color;
-			result_file.width(10);
-			result_file << duration.count();
-			result_file.width(10);
-			result_file << g_execution_param->current_config << "\n";
-
+			result_file.width(20);
+			result_file << duration.count() << "\n";
 			result_file.close();
 
 			g_graph->instance_run_count = 0;
-			time_counter = 0;
 			break;
 		}
 	

@@ -11,6 +11,8 @@
 #include <string.h>
 #include <iostream>
 
+#include "../header/config.h"
+
 namespace GP
 {
 	class Graph
@@ -26,9 +28,6 @@ namespace GP
 
 		    int num_vertices {0};
 			std::vector<std::vector<int>> adj_list;
-
-			void save_colors_avg_and_standard_deviation();
-			void insert_header();
 
 			const std::vector<std::tuple<std::string, int>> graph_instances
 			{
@@ -60,6 +59,7 @@ namespace GP
 			int current_repetition     {0};
 
 			std::vector<int> colors;
+			std::vector<double> times;
 	};
 }
 

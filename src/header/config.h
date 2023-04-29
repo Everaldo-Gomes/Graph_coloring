@@ -1,15 +1,36 @@
 #pragma once
 
+#include <memory>
+#include <string>
+#include <fstream>
+
+#include "../header/graph.h"
+
 #define MAX_TIME_LIMIT 80000
 #define MAX_CONFIG_NUM 36
-#define CROSSOVER_A 0
-#define CROSSOVER_B 1
-#define MUTATION_A 0
-#define MUTATION_B 1
+#define CROSSOVER_A    0
+#define CROSSOVER_B    1
+#define MUTATION_A     0
+#define MUTATION_B     1
 
 
 namespace Config
 {
+	class System
+	{
+		private:
+			std::string _config_num {};
+
+		public:
+			const std::string _file_name {"../config_" + _config_num + "_results.txt"};
+			
+			System(const std::string &config_num);
+			char* remove_file() const;		
+
+			void save_colors_avg_and_standard_deviation();
+			void insert_header();
+	};
+
     class Execution_param
 	{
 		public:
@@ -24,4 +45,6 @@ namespace Config
 	};
 }
 
+
+extern std::unique_ptr<Config::System> g_sys;
 extern Config::Execution_param g_execution_param[MAX_CONFIG_NUM];
