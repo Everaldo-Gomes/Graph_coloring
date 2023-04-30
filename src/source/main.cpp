@@ -13,48 +13,27 @@ Config::Execution_param g_execution_param[MAX_CONFIG_NUM];
 int main (int argc, char *argv[])
 {	
 	std::cout << argc;
+	const int instance_index = std::stoi(argv[1]);
+	const std::string config = argv[2];
+	const std::string exec_num = argv[3];
 	
-	g_sys = std::make_unique<Config::System>(argv[1]);
-	remove (g_sys->remove_file());
-	
+	// init graph settings
 	g_graph = std::make_unique<GP::Graph>();
-	
-	g_execution_param->current_config = std::stoi(argv[1]);
-	g_graph->instance_count = 0;
 
-	for (unsigned int inst = 1; inst < g_graph->graph_instances.size(); ++inst)
-	{	
-		++g_graph->instance_count;
-		g_graph->current_repetition = 0;
+	auto t {g_graph->graph_instances[instance_index]};
+	std::string instance_path {std::get<0>(t)};
+
+	g_graph->build_adj_list(instance_path);
+	g_graph->instance_name = instance_path.erase(0,22);
+	g_graph->instance_xg   = std::get<1>(t);			
+
+	// init system settings
+	g_sys = std::make_unique<Config::System>(instance_index, config, exec_num);
+	remove (g_sys->remove_file());
+
+	// start searching
+	GA::Genetic_algorithm ga;
+	ga.search(); 
 		
-		bool set_header {true};
-
-		for (int j = 1; j <= g_graph->max_instance_run; ++j)
-		{
-			++g_graph->instance_run_count;
-			++g_graph->current_repetition;
-
-			auto t {g_graph->graph_instances[inst]};
-			std::string instance_path {std::get<0>(t)};
-
-			g_graph->build_adj_list(instance_path);
-			g_graph->instance_name = instance_path.erase(0,22);
-			g_graph->instance_xg   = std::get<1>(t);			
-			
-			if (set_header) 
-			{
-				g_sys->insert_header();
-				set_header = false;
-			}
-
-			GA::Genetic_algorithm ga;
-			ga.search(); 
-			
-			g_graph->min_color = INT_MAX;
-		}
-
-		g_sys->save_colors_avg_and_standard_deviation();
-	}
-	
 	return 0;
 }

@@ -1,7 +1,7 @@
 #include <sstream>
 #include "../header/graph.h"
 
-GP::Graph::Graph() : adj_list(0, std::vector<int>(0)), colors(0), times(0)
+GP::Graph::Graph() : adj_list(0, std::vector<int>(0)), colors(0), times(0), avg_of_avg_colors(0), avg_all_standad_deviation(0), avg_of_avg_time(0)
 {
 }
 

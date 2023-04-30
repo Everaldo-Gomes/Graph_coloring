@@ -38,7 +38,7 @@ void GA::Genetic_algorithm::search()
 		std::cerr << "Instance:  " << g_graph->instance_name            << "\t"
 				  << "N: ["        << g_graph->instance_count           << "/"    << g_graph->graph_instances.size() - 1 << "]  "
 				  << "XG: "        << g_graph->instance_xg              << "\n\n"
-				  << "Exe config " << g_execution_param->current_config << "/"    << MAX_CONFIG_NUM -1 << "\t[" << g_graph->current_repetition << "/" << g_graph->max_instance_run << "]\n" 
+				  << "Exe config " << g_execution_param->current_config << "\n" 
 				  << "Colors:    " << g_graph->min_color                << "\n"
 				  << "Time:      " << duration.count() << "/" << time_limit << "\n\n";
 
@@ -49,10 +49,17 @@ void GA::Genetic_algorithm::search()
 			
 			std::ofstream result_file(g_sys->_file_name, std::ios::app);
 
-			result_file << g_graph->min_color;
-			result_file.width(20);
-			result_file << duration.count() << "\n";
-			result_file.close();
+			result_file << "Instance: " << g_graph->instance_name            << "\n";
+			result_file << "XG:       "      << g_graph->instance_xg              << "\n";
+			result_file << "Colors:   " << g_graph->min_color << "\n";
+			//result_file.width(20);
+			result_file << "time(ms): " << duration.count() << "\n\n";
+    		result_file.close();  
+
+			//result_file << g_graph->min_color;
+			//result_file.width(20);
+			//result_file << duration.count() << "\n";
+			//result_file.close();
 
 			g_graph->instance_run_count = 0;
 			break;
@@ -68,12 +75,13 @@ void GA::Genetic_algorithm::init_population()
 	// summary
 	// for each cromossome, generate random values from 1 to max quantity of vertices
 
-	srand(time(0));
-
 	for (int i = 0; i < population_num; ++i)
 	{
 		for (int j = 1; j < g_graph->num_vertices; ++j)
+		{
+			srand(time(0) + i + j);
 			population[i][j] = rand() % (g_graph->num_vertices - 1) + 1;
+		}
 	}
 }
 
@@ -167,14 +175,13 @@ void GA::Genetic_algorithm::crossover_A(const std::vector<std::vector<int>> &sel
 	#pragma omp parallel for
 	for (size_t parent_index = 0; parent_index < selected_population.size() - 1; parent_index += 2)
 	{
-		srand(time(0));
-
 		std::vector<int> offspring_1, offspring_2;
 		int gene_index{}, gene{};
 
 		// first half offspring 1
 		for (int h1 = 0; h1 <= first_half; ++h1)
 		{
+			srand(time(0) + h1);
 			gene_index = rand() % (g_graph->num_vertices - 1) + 1;
 			gene = selected_population[parent_index][gene_index];
 			offspring_1.push_back(gene);
@@ -183,6 +190,7 @@ void GA::Genetic_algorithm::crossover_A(const std::vector<std::vector<int>> &sel
 		// second half offspring 1
 		for (int h2 = first_half + 1; h2 < second_half; ++h2)
 		{
+			srand(time(0) + h2);
 			gene_index = rand() % (g_graph->num_vertices - 1) + 1;
 			gene = selected_population[parent_index][gene_index];
 			offspring_1.push_back(gene);
@@ -191,6 +199,7 @@ void GA::Genetic_algorithm::crossover_A(const std::vector<std::vector<int>> &sel
 		// first half offspring 2
 		for (int h1 = 0; h1 <= first_half; ++h1)
 		{
+			srand(time(0) + h1);
 			gene_index = rand() % (g_graph->num_vertices - 1) + 1;
 			gene = selected_population[parent_index + 1][gene_index];
 			offspring_2.push_back(gene);
@@ -199,6 +208,7 @@ void GA::Genetic_algorithm::crossover_A(const std::vector<std::vector<int>> &sel
 		// second half offspring 2
 		for (int h2 = first_half + 1; h2 < second_half; ++h2)
 		{
+			srand(time(0) + h2);
 			gene_index = rand() % (g_graph->num_vertices - 1) + 1;
 			gene = selected_population[parent_index + 1][gene_index];
 			offspring_2.push_back(gene);
@@ -266,7 +276,7 @@ void GA::Genetic_algorithm::crossover_B(const std::vector<std::vector<int>> &sel
 		// all possibile configurations for P1 + P2 and P2 + P1
 
 		// offspring 1 configuration
-		srand(time(0));
+		srand(time(0) + parent_index);
 		const int config_offspring_1 {rand() % 7};
 
 		switch(config_offspring_1)
@@ -332,7 +342,7 @@ void GA::Genetic_algorithm::crossover_B(const std::vector<std::vector<int>> &sel
 		
 		// offspring 2 configuration
 		
-		srand(time(0)+1);
+		srand(time(0) + parent_index);
 		const int config_offspring_2{rand() % 7};
 
 		switch(config_offspring_2)
@@ -415,7 +425,7 @@ void GA::Genetic_algorithm::mutate()
 
 	while (--num_offsprint_to_muate)
 	{
-		srand(time(0));
+		srand(time(0) + num_offsprint_to_muate);
 		const int offspring_index {rand() % (population_num - offspring_start_at)  + offspring_start_at};
 
 		itr = find(mutated_offspring.begin(), mutated_offspring.end(), offspring_index);
@@ -476,7 +486,7 @@ void GA::Genetic_algorithm::mutation_A(const int &offspring_index)
 
 void GA::Genetic_algorithm::mutation_B(const int &offspring_index)
 {
-	srand(time(0));
+	srand(time(0) + g_graph->instance_xg);
 	const int gene         {rand() % (g_graph->num_vertices - 1) + 1};
 	const int gene_val     {population[offspring_index][gene]};
 	const int new_gene_val {gene_val - 1 > 1 ? gene_val - 1 : 1};
@@ -515,11 +525,10 @@ void GA::Genetic_algorithm::decrease_colors_num(const std::vector<std::tuple<int
 					indexes.push_back(k);
 			}
 
-
 			// for all indexes, check if the new color will cause a conflict			
 			for (size_t k = 0; k < indexes.size(); ++k)
 			{
-				srand(time(0));
+				srand(time(0) + k);
 				const int current_color_index  {indexes[k]};
 				int current_vertex_color       {population[i][current_color_index]};
 				int new_color                  {current_vertex_color};
