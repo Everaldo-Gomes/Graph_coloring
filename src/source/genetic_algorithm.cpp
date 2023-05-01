@@ -33,35 +33,26 @@ void GA::Genetic_algorithm::search()
 
 		auto stop {std::chrono::high_resolution_clock::now()};
 		auto duration {std::chrono::duration_cast<std::chrono::milliseconds>(stop - start)};
-
+		
 		std::system("clear");
-		std::cerr << "Instance:  " << g_graph->instance_name            << "\t"
-				  << "N: ["        << g_graph->instance_count           << "/"    << g_graph->graph_instances.size() - 1 << "]  "
-				  << "XG: "        << g_graph->instance_xg              << "\n\n"
-				  << "Exe config " << g_execution_param->current_config << "\n" 
-				  << "Colors:    " << g_graph->min_color                << "\n"
-				  << "Time:      " << duration.count() << "/" << time_limit << "\n\n";
+		std::cerr << "Instance:  " << g_graph->instance_name                << "\t"
+				  << "N: ["        << g_graph->instance_count               << "/"    << g_graph->graph_instances.size() - 1 << "]  "
+				  << "XG: "        << g_graph->instance_xg                  << "\n\n"
+				  << "Exe:       " << g_execution_param->current_exe        << "\n"
+				  << "Config:    " << g_execution_param->current_config     << "\n" 
+				  << "Colors:    " << g_graph->min_color                    << "\n"
+				  << "Time:      " << duration.count() << "/" << time_limit << "\n\n"; 
 
 		if (duration >= std::chrono::milliseconds(time_limit) || (g_graph->min_color == g_graph->instance_xg))
 		{
-			g_graph->colors.push_back(g_graph->min_color);
-			g_graph->times.push_back(duration.count());
-			
 			std::ofstream result_file(g_sys->_file_name, std::ios::app);
 
-			result_file << "Instance: " << g_graph->instance_name            << "\n";
-			result_file << "XG:       "      << g_graph->instance_xg              << "\n";
-			result_file << "Colors:   " << g_graph->min_color << "\n";
-			//result_file.width(20);
-			result_file << "time(ms): " << duration.count() << "\n\n";
+			result_file << "Instance: " << g_graph->instance_name << "\n";
+			result_file << "XG:       " << g_graph->instance_xg   << "\n";
+			result_file << "Colors:   " << g_graph->min_color     << "\n";
+			result_file << "time(ms): " << duration.count()       << "\n\n";
     		result_file.close();  
 
-			//result_file << g_graph->min_color;
-			//result_file.width(20);
-			//result_file << duration.count() << "\n";
-			//result_file.close();
-
-			g_graph->instance_run_count = 0;
 			break;
 		}
 	

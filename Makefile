@@ -44,4 +44,4 @@ run:
 
 clean:
 	@clear
-	@rm -rf ${path_bin}/*.exe
+	@rm -rf ${path_bin}/*exe
